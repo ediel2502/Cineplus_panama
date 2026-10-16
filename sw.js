@@ -1,4 +1,4 @@
-const CACHE='cineplus-static-v1';
+const CACHE='cineplus-static-v2';
 const ASSETS=['./','./index.html','./manifest.json'];
 self.addEventListener('install',event=>event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(ASSETS))));
 self.addEventListener('fetch',event=>{
