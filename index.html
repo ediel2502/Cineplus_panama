@@ -20,6 +20,9 @@ main{max-width:900px;margin:auto;padding:18px 14px 90px}.hero{border:1px solid #
 .card{margin-top:18px;border:1px solid var(--line);background:#0c1929;border-radius:16px;padding:16px}.card h2{font-size:18px;margin:0 0 8px}.price{font-size:27px;font-weight:900;margin:7px 0}.list{padding-left:19px;color:#c1d0e0;font-size:14px;line-height:1.8}.notice{font-size:12px;color:#a9bbce;line-height:1.5}.footer{position:fixed;bottom:0;left:0;right:0;background:#071321f2;border-top:1px solid var(--line);display:flex;justify-content:space-around;padding:10px 4px calc(10px + env(safe-area-inset-bottom));z-index:6}.footer button{background:none;color:#b8c7d8;border:0;font-size:12px;padding:5px}.footer button:focus,.footer button:hover{color:#61b1ff}.hidden{display:none!important}
 .modal{position:fixed;inset:0;background:#000b;z-index:20;display:flex;align-items:center;justify-content:center;padding:16px}.modal-box{width:min(460px,100%);background:#0d1b2d;border:1px solid #35516f;border-radius:18px;padding:20px}.modal-box h2{margin-top:0}.modal-box input{width:100%;padding:12px;border:1px solid #35516f;background:#071321;color:white;border-radius:10px;margin:6px 0 12px;font-size:16px}.close{float:right;background:none;border:0;color:white;font-size:22px}
 @media(min-width:650px){.grid{grid-template-columns:repeat(4,minmax(0,1fr))}.poster{height:185px}.hero h1{font-size:42px}}
+.detail-content{line-height:1.6;color:#c1d0e0}
+.detail-content h3{color:#fff}
+.detail-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
 </style>
 </head>
 <body>
@@ -63,6 +66,18 @@ main{max-width:900px;margin:auto;padding:18px 14px 90px}.hero{border:1px solid #
 <div id="accountModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
 <div class="modal-box"><button class="close" onclick="closeAccount()" aria-label="Cerrar">×</button><h2 id="modalTitle">Cuenta CinePlus</h2><p>La cuenta real se conectará en una próxima versión. Por ahora, esta ventana solo demuestra el flujo.</p><label for="email">Correo electrónico de prueba</label><input id="email" type="email" placeholder="demo@ejemplo.com"><p class="notice">No uses tu contraseña real. La prueba gratuita real de 8 días debe controlarse desde un servidor para evitar manipulaciones.</p><button class="btn" style="width:100%" onclick="demoMessage()">Probar interfaz</button><p id="demoMsg" class="notice" aria-live="polite"></p></div>
 </div>
+<div id="movieModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="movieModalTitle">
+  <div class="modal-box">
+    <button class="close" onclick="closeMovie()" aria-label="Cerrar">×</button>
+    <span id="movieGenre" class="tag"></span>
+    <h2 id="movieModalTitle">Detalles de la película</h2>
+    <p id="movieYear" class="muted"></p>
+    <div id="movieDescription" class="detail-content"></div>
+    <div class="detail-actions">
+      <button class="btn secondary" onclick="closeMovie()">Volver al catálogo</button>
+    </div>
+  </div>
+</div>
 <script>
 const movies=[
  {title:"La noche estrellada",year:"Clásico de muestra",genre:"Drama",desc:"Una ficha de ejemplo para demostrar el catálogo. Sustituye por títulos con derechos confirmados.",style:""},
@@ -76,7 +91,22 @@ function renderMovies(query=''){
  document.getElementById('count').textContent=list.length+' títulos';
  grid.innerHTML=list.map(m=>`<article class="movie"><div class="poster ${m.style}">${m.title}</div><div class="movie-body"><span class="tag">${m.genre}</span><h3>${m.title}</h3><p>${m.year}</p><button class="btn secondary" style="width:100%" onclick="movieInfo('${m.title.replace(/'/g,"\\'")}')">Ver detalles</button></div></article>`).join('')||'<p class="muted">No se encontraron títulos.</p>';
 }
-function movieInfo(title){const m=movies.find(x=>x.title===title);alert(title+'\\n\\n'+m.desc)}
+
+function movieInfo(title){
+  const m = movies.find(x => x.title === title);
+  if (!m) return;
+
+  document.getElementById('movieModalTitle').textContent = m.title;
+  document.getElementById('movieGenre').textContent = m.genre;
+  document.getElementById('movieYear').textContent = m.year;
+  document.getElementById('movieDescription').textContent = m.desc;
+
+  document.getElementById('movieModal').classList.remove('hidden');
+}
+
+function closeMovie(){
+  document.getElementById('movieModal').classList.add('hidden');
+}
 function showSection(id){document.getElementById(id).scrollIntoView({behavior:'smooth',block:'start'})}
 document.getElementById('search').addEventListener('input',e=>renderMovies(e.target.value));
 function openAccount(){document.getElementById('accountModal').classList.remove('hidden')}
