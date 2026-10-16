@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#071321">
+<meta name="description" content="CinePlus Panamá: descubre cine independiente, clásicos autorizados y enlaces a estrenos legales.">
+<link rel="manifest" href="manifest.json">
+<title>CinePlus Panamá</title>
+<style>
+:root{color-scheme:dark;--bg:#071321;--panel:#101f32;--blue:#168cff;--muted:#9db0c7;--line:#233851}
+*{box-sizing:border-box}body{margin:0;background:linear-gradient(180deg,#071321,#050b13);color:#f5f8fc;font-family:system-ui,-apple-system,Segoe UI,sans-serif}
+header{position:sticky;top:0;z-index:5;background:#071321ee;backdrop-filter:blur(12px);border-bottom:1px solid var(--line);padding:14px 16px;display:flex;align-items:center;justify-content:space-between}
+.logo{font-weight:900;font-size:20px;letter-spacing:-.6px}.logo span{color:#168cff}.pill{font-size:12px;color:#b8d8ff;border:1px solid #245b8e;border-radius:99px;padding:5px 9px}
+main{max-width:900px;margin:auto;padding:18px 14px 90px}.hero{border:1px solid #244665;border-radius:22px;padding:24px 20px;background:radial-gradient(ellipse at top right,#123d68 0,#10223a 42%,#0c1727 78%);min-height:220px;display:flex;flex-direction:column;justify-content:end}
+.eyebrow{color:#77bcff;text-transform:uppercase;font-size:11px;font-weight:800;letter-spacing:1.5px}.hero h1{font-size:32px;line-height:1.05;margin:9px 0}.hero p{color:#c1d0e0;max-width:520px;margin:0 0 16px}.btn{border:0;border-radius:12px;padding:11px 15px;font-weight:800;cursor:pointer;background:var(--blue);color:white}.btn.secondary{background:#1b3049;border:1px solid #35516f}.actions{display:flex;gap:9px;flex-wrap:wrap}
+.search{width:100%;margin:18px 0;padding:13px 14px;border:1px solid var(--line);border-radius:12px;background:#0c1929;color:white;font-size:16px}
+.section-head{display:flex;align-items:center;justify-content:space-between;margin:22px 2px 12px}.section-head h2{font-size:18px;margin:0}.muted{color:var(--muted);font-size:13px}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.movie{background:var(--panel);border:1px solid var(--line);border-radius:16px;overflow:hidden}.poster{height:142px;padding:12px;display:flex;align-items:end;font-weight:900;font-size:21px;line-height:1.05;background:linear-gradient(135deg,#19456c,#152238 60%,#111827)}.poster.p2{background:linear-gradient(135deg,#6d2e45,#291c38 65%,#111827)}.poster.p3{background:linear-gradient(135deg,#326650,#172d37 65%,#111827)}.poster.p4{background:linear-gradient(135deg,#78522a,#30233a 65%,#111827)}.movie-body{padding:12px}.movie h3{margin:0 0 5px;font-size:15px}.movie p{margin:0 0 10px;color:var(--muted);font-size:12px;line-height:1.4}.tag{display:inline-block;color:#aad4ff;background:#132c47;border-radius:7px;padding:4px 7px;font-size:10px;margin-bottom:9px}
+.card{margin-top:18px;border:1px solid var(--line);background:#0c1929;border-radius:16px;padding:16px}.card h2{font-size:18px;margin:0 0 8px}.price{font-size:27px;font-weight:900;margin:7px 0}.list{padding-left:19px;color:#c1d0e0;font-size:14px;line-height:1.8}.notice{font-size:12px;color:#a9bbce;line-height:1.5}.footer{position:fixed;bottom:0;left:0;right:0;background:#071321f2;border-top:1px solid var(--line);display:flex;justify-content:space-around;padding:10px 4px calc(10px + env(safe-area-inset-bottom));z-index:6}.footer button{background:none;color:#b8c7d8;border:0;font-size:12px;padding:5px}.footer button:focus,.footer button:hover{color:#61b1ff}.hidden{display:none!important}
+.modal{position:fixed;inset:0;background:#000b;z-index:20;display:flex;align-items:center;justify-content:center;padding:16px}.modal-box{width:min(460px,100%);background:#0d1b2d;border:1px solid #35516f;border-radius:18px;padding:20px}.modal-box h2{margin-top:0}.modal-box input{width:100%;padding:12px;border:1px solid #35516f;background:#071321;color:white;border-radius:10px;margin:6px 0 12px;font-size:16px}.close{float:right;background:none;border:0;color:white;font-size:22px}
+@media(min-width:650px){.grid{grid-template-columns:repeat(4,minmax(0,1fr))}.poster{height:185px}.hero h1{font-size:42px}}
+</style>
+</head>
+<body>
+<header><div class="logo">Cine<span>Plus</span> Panamá</div><span class="pill" id="statusPill">Catálogo de muestra</span></header>
+<main>
+<section class="hero">
+<div class="eyebrow">Tu cine, donde estés</div>
+<h1>Grandes historias.<br>Descúbrelas aquí.</h1>
+<p>Explora clásicos, cine independiente y enlaces a plataformas legales para encontrar estrenos.</p>
+<div class="actions"><button class="btn" onclick="showSection('catalogo')">Explorar catálogo</button><button class="btn secondary" onclick="showSection('planes')">Ver suscripción</button></div>
+</section>
+<input class="search" id="search" placeholder="Buscar películas o géneros…" aria-label="Buscar películas">
+<section id="catalogo">
+<div class="section-head"><h2>Catálogo de muestra</h2><span class="muted" id="count"></span></div>
+<div class="grid" id="movieGrid"></div>
+</section>
+<section class="card" id="planes">
+<h2>Prueba gratuita y plan mensual</h2>
+<p class="muted">Prueba de 8 días · después, plan de ejemplo de $3 USD/mes</p>
+<div class="price">$3 <span class="muted">USD / mes</span></div>
+<ul class="list"><li>Catálogo de películas autorizadas</li><li>Clásicos y cine independiente</li><li>Enlaces a servicios legales de estrenos</li></ul>
+<button class="btn" style="width:100%" onclick="openAccount()">Crear cuenta / iniciar prueba</button>
+<p class="notice">Prototipo: el registro y la suscripción aún no están conectados a un servidor ni procesan pagos. No introduzcas contraseñas reales ni datos bancarios aquí.</p>
+</section>
+<section class="card" id="estrenos">
+<h2>Encontrar estrenos legales</h2>
+<p class="muted">Consulta disponibilidad en servicios oficiales. CinePlus no aloja ni distribuye estos estrenos.</p>
+<div class="actions"><a class="btn secondary" href="https://www.justwatch.com/" target="_blank" rel="noopener">Buscar en JustWatch</a><a class="btn secondary" href="https://www.youtube.com/" target="_blank" rel="noopener">Avances en YouTube</a></div>
+</section>
+<section class="card" id="cuenta">
+<h2>Mi cuenta</h2><p id="accountText" class="muted">No has iniciado una sesión real. El prototipo no guarda cuentas en línea.</p>
+<button class="btn secondary" onclick="openAccount()">Ver opciones de cuenta</button>
+</section>
+</main>
+<nav class="footer" aria-label="Navegación">
+<button onclick="window.scrollTo({top:0,behavior:'smooth'})">⌂<br>Inicio</button>
+<button onclick="showSection('catalogo')">▦<br>Catálogo</button>
+<button onclick="showSection('estrenos')">▶<br>Estrenos legales</button>
+<button onclick="showSection('cuenta')">♙<br>Mi cuenta</button>
+</nav>
+<div id="accountModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+<div class="modal-box"><button class="close" onclick="closeAccount()" aria-label="Cerrar">×</button><h2 id="modalTitle">Cuenta CinePlus</h2><p>La cuenta real se conectará en una próxima versión. Por ahora, esta ventana solo demuestra el flujo.</p><label for="email">Correo electrónico de prueba</label><input id="email" type="email" placeholder="demo@ejemplo.com"><p class="notice">No uses tu contraseña real. La prueba gratuita real de 8 días debe controlarse desde un servidor para evitar manipulaciones.</p><button class="btn" style="width:100%" onclick="demoMessage()">Probar interfaz</button><p id="demoMsg" class="notice" aria-live="polite"></p></div>
+</div>
+<script>
+const movies=[
+ {title:"La noche estrellada",year:"Clásico de muestra",genre:"Drama",desc:"Una ficha de ejemplo para demostrar el catálogo. Sustituye por títulos con derechos confirmados.",style:""},
+ {title:"El último viaje",year:"Cine independiente",genre:"Aventura",desc:"Ejemplo de película independiente. Añade un enlace de reproducción solo si tienes autorización.",style:"p2"},
+ {title:"Bosque secreto",year:"Cine independiente",genre:"Drama",desc:"Una ficha ficticia para probar búsqueda, categorías y presentación.",style:"p3"},
+ {title:"Horizonte perdido",year:"Clásico de muestra",genre:"Misterio",desc:"Ejemplo de catálogo. Comprueba los derechos territoriales antes de publicar cualquier película.",style:"p4"}
+];
+const grid=document.getElementById('movieGrid');
+function renderMovies(query=''){
+ const list=movies.filter(m=>(m.title+' '+m.genre+' '+m.year).toLowerCase().includes(query.toLowerCase()));
+ document.getElementById('count').textContent=list.length+' títulos';
+ grid.innerHTML=list.map(m=>`<article class="movie"><div class="poster ${m.style}">${m.title}</div><div class="movie-body"><span class="tag">${m.genre}</span><h3>${m.title}</h3><p>${m.year}</p><button class="btn secondary" style="width:100%" onclick="movieInfo('${m.title.replace(/'/g,"\\'")}')">Ver detalles</button></div></article>`).join('')||'<p class="muted">No se encontraron títulos.</p>';
+}
+function movieInfo(title){const m=movies.find(x=>x.title===title);alert(title+'\\n\\n'+m.desc)}
+function showSection(id){document.getElementById(id).scrollIntoView({behavior:'smooth',block:'start'})}
+document.getElementById('search').addEventListener('input',e=>renderMovies(e.target.value));
+function openAccount(){document.getElementById('accountModal').classList.remove('hidden')}
+function closeAccount(){document.getElementById('accountModal').classList.add('hidden')}
+function demoMessage(){document.getElementById('demoMsg').textContent='Demostración completada. El registro real requiere conectar autenticación y base de datos.'}
+renderMovies();
+if('serviceWorker' in navigator && location.protocol.startsWith('http')){navigator.serviceWorker.register('./sw.js').catch(()=>{});}
+</script>
+</body>
+</html>

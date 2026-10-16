@@ -1,0 +1,10 @@
+{
+  "name": "CinePlus Panamá",
+  "short_name": "CinePlus",
+  "description": "Descubre cine autorizado y enlaces a estrenos legales.",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#071321",
+  "theme_color": "#071321",
+  "icons": []
+}
