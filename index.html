@@ -64,7 +64,31 @@ main{max-width:900px;margin:auto;padding:18px 14px 90px}.hero{border:1px solid #
 <button onclick="showSection('cuenta')">♙<br>Mi cuenta</button>
 </nav>
 <div id="accountModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
-<div class="modal-box"><button class="close" onclick="closeAccount()" aria-label="Cerrar">×</button><h2 id="modalTitle">Cuenta CinePlus</h2><p>La cuenta real se conectará en una próxima versión. Por ahora, esta ventana solo demuestra el flujo.</p><label for="email">Correo electrónico de prueba</label><input id="email" type="email" placeholder="demo@ejemplo.com"><p class="notice">No uses tu contraseña real. La prueba gratuita real de 8 días debe controlarse desde un servidor para evitar manipulaciones.</p><button class="btn" style="width:100%" onclick="demoMessage()">Probar interfaz</button><p id="demoMsg" class="notice" aria-live="polite"></p></div>
+  <div class="modal-box">
+    <button class="close" onclick="closeAccount()" aria-label="Cerrar">×</button>
+
+    <h2 id="modalTitle">Cuenta CinePlus</h2>
+    <p class="muted">Crea tu cuenta o inicia sesión.</p>
+
+    <label for="authEmail">Correo electrónico</label>
+    <input id="authEmail" type="email" autocomplete="email"
+      placeholder="tu correo electrónico" required>
+
+    <label for="authPassword">Contraseña (mínimo 8 caracteres)</label>
+    <input id="authPassword" type="password" autocomplete="new-password"
+      minlength="8" placeholder="Mínimo 8 caracteres" required>
+
+    <button class="btn" style="width:100%;margin-bottom:10px"
+      onclick="signUpUser()">Crear cuenta</button>
+
+    <button class="btn secondary" style="width:100%;margin-bottom:10px"
+      onclick="signInUser()">Iniciar sesión</button>
+
+    <button class="btn secondary" style="width:100%"
+      onclick="signOutUser()">Cerrar sesión</button>
+
+    <p id="authMsg" class="notice" aria-live="polite"></p>
+  </div>
 </div>
 <div id="movieModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="movieModalTitle">
   <div class="modal-box">
@@ -116,9 +140,106 @@ function closeMovie(){
 }
 function showSection(id){document.getElementById(id).scrollIntoView({behavior:'smooth',block:'start'})}
 document.getElementById('search').addEventListener('input',e=>renderMovies(e.target.value));
-function openAccount(){document.getElementById('accountModal').classList.remove('hidden')}
-function closeAccount(){document.getElementById('accountModal').classList.add('hidden')}
-function demoMessage(){document.getElementById('demoMsg').textContent='Demostración completada. El registro real requiere conectar autenticación y base de datos.'}
+
+function openAccount(){
+  document.getElementById('accountModal').classList.remove('hidden');
+  refreshAuthState();
+}
+
+function closeAccount(){
+  document.getElementById('accountModal').classList.add('hidden');
+}
+
+async function signUpUser(){
+  const email = document.getElementById('authEmail').value.trim();
+  const password = document.getElementById('authPassword').value;
+  const msg = document.getElementById('authMsg');
+
+  if(!email || password.length < 8){
+    msg.textContent = 'Escribe un correo válido y una contraseña de al menos 8 caracteres.';
+    return;
+  }
+
+  msg.textContent = 'Creando cuenta...';
+
+  const {data, error} = await supabaseClient.auth.signUp({
+    email,
+    password,
+    options: {
+      emailRedirectTo: 'https://ediel2502.github.io/Cineplus_panama/'
+    }
+  });
+
+  if(error){
+    msg.textContent = 'No se pudo crear la cuenta: ' + error.message;
+    return;
+  }
+
+  msg.textContent = data.session
+    ? 'Cuenta creada e iniciada correctamente.'
+    : 'Cuenta creada. Revisa tu correo para confirmar la cuenta antes de iniciar sesión.';
+
+  await refreshAuthState();
+}
+
+async function signInUser(){
+  const email = document.getElementById('authEmail').value.trim();
+  const password = document.getElementById('authPassword').value;
+  const msg = document.getElementById('authMsg');
+
+  if(!email || !password){
+    msg.textContent = 'Escribe tu correo y contraseña.';
+    return;
+  }
+
+  msg.textContent = 'Iniciando sesión...';
+
+  const {error} = await supabaseClient.auth.signInWithPassword({
+    email,
+    password
+  });
+
+  if(error){
+    msg.textContent = 'No se pudo iniciar sesión: ' + error.message;
+    return;
+  }
+
+  msg.textContent = 'Sesión iniciada correctamente.';
+  await refreshAuthState();
+}
+
+async function signOutUser(){
+  const msg = document.getElementById('authMsg');
+  const {error} = await supabaseClient.auth.signOut();
+
+  if(error){
+    msg.textContent = 'No se pudo cerrar sesión: ' + error.message;
+    return;
+  }
+
+  msg.textContent = 'Sesión cerrada.';
+  await refreshAuthState();
+}
+
+async function refreshAuthState(){
+  const {data, error} = await supabaseClient.auth.getUser();
+
+  if(error){
+    document.getElementById('accountText').textContent =
+      'No se pudo comprobar la sesión.';
+    return;
+  }
+
+  const user = data.user;
+
+  document.getElementById('accountText').textContent = user
+    ? 'Sesión iniciada: ' + user.email
+    : 'No has iniciado sesión.';
+
+  document.getElementById('statusPill').textContent = user
+    ? 'Cuenta conectada'
+    : 'CinePlus Panamá';
+}
 renderMovies();
 if('serviceWorker' in navigator && location.protocol.startsWith('http')){navigator.serviceWorker.register('./sw.js').catch(()=>{});}
 </script></body></html>
