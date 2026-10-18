@@ -78,8 +78,15 @@ main{max-width:900px;margin:auto;padding:18px 14px 90px}.hero{border:1px solid #
     </div>
   </div>
 </div>
-<script>
-const movies=[
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+  const SUPABASE_URL = 'https://dobccbeldwschjhaijlp.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_9SVmtpCDaqNaginsr8c9RQ_XNhnhrRR';
+const supabaseClient = window.supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_KEY
+);
+ const movies=[
  {title:"La noche estrellada",year:"Clásico de muestra",genre:"Drama",desc:"Una ficha de ejemplo para demostrar el catálogo. Sustituye por títulos con derechos confirmados.",style:""},
  {title:"El último viaje",year:"Cine independiente",genre:"Aventura",desc:"Ejemplo de película independiente. Añade un enlace de reproducción solo si tienes autorización.",style:"p2"},
  {title:"Bosque secreto",year:"Cine independiente",genre:"Drama",desc:"Una ficha ficticia para probar búsqueda, categorías y presentación.",style:"p3"},
