@@ -222,25 +222,62 @@ async function signOutUser(){
   await refreshAuthState();
 }
 
+
 async function refreshAuthState(){
   const {data, error} = await supabaseClient.auth.getUser();
 
+  const accountText = document.getElementById('accountText');
+  const statusPill = document.getElementById('statusPill');
+
   if(error){
-    document.getElementById('accountText').textContent =
-      'No se pudo comprobar la sesión.';
+    accountText.textContent = 'No se pudo comprobar la sesión.';
     return;
   }
 
   const user = data.user;
 
-  document.getElementById('accountText').textContent = user
-    ? 'Sesión iniciada: ' + user.email
-    : 'No has iniciado sesión.';
-
-  document.getElementById('statusPill').textContent = user
+  statusPill.textContent = user
     ? 'Cuenta conectada'
     : 'CinePlus Panamá';
+
+  if(!user){
+    accountText.textContent = 'Inicia sesión o crea tu cuenta.';
+    return;
+  }
+
+  accountText.textContent = 'Sesión iniciada: ' + user.email;
+
+  const {data: suscripcion, error: errorSuscripcion} =
+    await supabaseClient
+      .from('subscriptions')
+      .select('status, trial_ends_at, paid_until')
+      .eq('user_id', user.id)
+      .maybeSingle();
+
+  if(errorSuscripcion || !suscripcion){
+    accountText.textContent =
+      'No se pudo consultar tu suscripción.';
+    return;
+  }
+
+  if(suscripcion.status === 'trial'){
+    const fin = new Date(suscripcion.trial_ends_at);
+    const dias = Math.max(
+      0,
+      Math.ceil((fin.getTime() - Date.now()) / 86400000)
+    );
+
+    accountText.textContent = dias > 0
+      ? 'Prueba gratuita: quedan ' + dias + ' días.'
+      : 'Tu prueba gratuita ha terminado.';
+  } else if(suscripcion.status === 'active'){
+    accountText.textContent = 'Tu suscripción está activa.';
+  } else {
+    accountText.textContent =
+      'Estado de tu suscripción: ' + suscripcion.status;
+  }
 }
+
 renderMovies();
 if('serviceWorker' in navigator && location.protocol.startsWith('http')){navigator.serviceWorker.register('./sw.js').catch(()=>{});}
 </script></body></html>
