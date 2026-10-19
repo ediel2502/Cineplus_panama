@@ -247,35 +247,37 @@ async function refreshAuthState(){
 
   accountText.textContent = 'Sesión iniciada: ' + user.email;
 
-  const {data: suscripcion, error: errorSuscripcion} =
-    await supabaseClient
-      .from('subscriptions')
-      .select('status, trial_ends_at, paid_until')
-      .eq('user_id', user.id)
-      .maybeSingle();
+const {data: filas, error: errorSuscripcion} =
+  await supabaseClient.rpc('check_my_subscription');
 
-  if(errorSuscripcion || !suscripcion){
-    accountText.textContent =
-      'No se pudo consultar tu suscripción.';
-    return;
-  }
+if(errorSuscripcion){
+  accountText.textContent =
+    'No se pudo comprobar tu suscripción.';
+  console.error(errorSuscripcion);
+  return;
+}
 
-  if(suscripcion.status === 'trial'){
-    const fin = new Date(suscripcion.trial_ends_at);
-    const dias = Math.max(
-      0,
-      Math.ceil((fin.getTime() - Date.now()) / 86400000)
-    );
+const suscripcion = filas?.[0];
 
-    accountText.textContent = dias > 0
-      ? 'Prueba gratuita: quedan ' + dias + ' días.'
-      : 'Tu prueba gratuita ha terminado.';
-  } else if(suscripcion.status === 'active'){
-    accountText.textContent = 'Tu suscripción está activa.';
-  } else {
-    accountText.textContent =
-      'Estado de tu suscripción: ' + suscripcion.status;
-  }
+if(!suscripcion){
+  accountText.textContent =
+    'Tu prueba ha terminado o no tienes una suscripción activa.';
+  return;
+}
+
+if(suscripcion.subscription_status === 'trial'){
+  const fin = new Date(suscripcion.trial_ends_at);
+  const dias = Math.max(
+    0,
+    Math.ceil((fin.getTime() - Date.now()) / 86400000)
+  );
+
+  accountText.textContent = dias > 0
+    ? 'Prueba gratuita: quedan ' + dias + ' días.'
+    : 'Tu prueba gratuita ha terminado.';
+} else {
+  accountText.textContent = 'Tu suscripción está activa.';
+}
 }
 
 renderMovies();
