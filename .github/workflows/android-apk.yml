@@ -14,8 +14,10 @@ permissions:
   contents: read
 
 jobs:
-  build:
+  verify-and-build:
+    name: Verify web app and build Android APK
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     steps:
       - name: Get project
         uses: actions/checkout@v4
@@ -28,9 +30,31 @@ jobs:
         with:
           distribution: temurin
           java-version: 21
+      - name: Verify required app sections and playback handlers
+        run: |
+          node --input-type=commonjs <<'NODE'
+          const fs = require('fs');
+          const html = fs.readFileSync('index.html', 'utf8');
+          const required = [
+            'id="catalogo"', 'id="iptv-playlist"', 'id="tv-en-vivo"',
+            'id="filmGrid"', 'id="m3uGrid"', 'id="video"',
+            'function parseM3u(', 'function playTitle(', 'id="demoLive"'
+          ];
+          const missing = required.filter(item => !html.includes(item));
+          if (missing.length) {
+            console.error('Missing app requirements:', missing.join(', '));
+            process.exit(1);
+          }
+          if (!html.includes('</html>') || !html.includes('</script>')) {
+            console.error('HTML document or script appears incomplete');
+            process.exit(1);
+          }
+          console.log('Required catalog, IPTV, live TV and playback hooks found.');
+          NODE
       - name: Prepare web app
         run: |
           npm run build
+          test -s www/index.html
           npm install @capacitor/core@^7 @capacitor/android@^7
           npm install --save-dev @capacitor/cli@^7
           npx cap add android
@@ -40,6 +64,7 @@ jobs:
           cd android
           chmod +x gradlew
           ./gradlew assembleDebug
+          test -s app/build/outputs/apk/debug/app-debug.apk
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
