@@ -15,7 +15,7 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script>
 const SUPABASE_URL='https://dobccbeldwschjhaijlp.supabase.co',SUPABASE_KEY='sb_publishable_9SVmtpCDaqNaginsr8c9RQ_XNhnhrRR';
 const supabaseClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
-const DEMO_VIDEO='https://storage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4';
+const DEMO_VIDEO='https://download.blender.org/peach/bigbuckbunny_movies/BigBuckBunny_320x180.mp4';
 const movies=[{id:'demo1',title:'Big Buck Bunny',year:'Vídeo de demostración',genre:'Aventura',desc:'Corto animado de demostración para probar el reproductor.',style:'',demo:true},{id:'demo2',title:'La noche estrellada',year:'Ficha de muestra',genre:'Drama',desc:'Ejemplo sin vídeo conectado. Añade solo películas con derechos confirmados.',style:'p2',demo:false},{id:'demo3',title:'Bosque secreto',year:'Ficha de muestra',genre:'Clásicos',desc:'Ficha de ejemplo; no contiene una película real.',style:'p3',demo:false},{id:'demo4',title:'Zona 18+',year:'Categoría de muestra',genre:'18+',desc:'No contiene vídeo adulto. Publica únicamente contenido legal y autorizado.',style:'p4',demo:false}];
 let activeFilter='Todos',selectedMovie=null,adultConfirmed=false;const $=id=>document.getElementById(id);
 function jump(id){$(id).scrollIntoView({behavior:'smooth',block:'start'})}
