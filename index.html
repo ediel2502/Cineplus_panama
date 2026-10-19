@@ -1,5 +1,34 @@
 <!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#10111b"><title>CinePlus Panamá</title><style>
 :root{color-scheme:dark;--bg:#10111b;--panel:#1a1c2b;--muted:#aeb2c7;--accent:#ff315a;--line:#30334a}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:#fff;font-family:system-ui,Arial,sans-serif}header{padding:18px 5%;display:flex;align-items:center;justify-content:space-between;background:#151624;position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line)}.brand{font-weight:900;font-size:1.25rem}.brand span{color:var(--accent)}button{cursor:pointer;border:0;border-radius:10px;padding:10px 14px;font:inherit;font-weight:700}.primary{background:var(--accent);color:white}.secondary{background:#2b2e43;color:white}.hero{padding:34px 5%;background:linear-gradient(120deg,#28213b,#151624 65%)}.hero h1{margin:0 0 8px;font-size:clamp(1.8rem,5vw,3rem)}.hero p,.notice{color:var(--muted);line-height:1.5}.wrap{padding:24px 5%}.status{padding:12px 14px;background:var(--panel);border:1px solid var(--line);border-radius:12px;margin-bottom:20px;color:var(--muted)}.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:15px}.movie{background:var(--panel);border:1px solid var(--line);border-radius:14px;overflow:hidden}.poster{height:120px;display:flex;align-items:center;justify-content:center;font-size:2.6rem;background:linear-gradient(135deg,#36264c,#1e5360)}.movie h3{font-size:1rem;margin:12px 12px 6px}.movie p{font-size:.86rem;color:var(--muted);margin:0 12px 12px;min-height:38px}.movie button{margin:0 12px 12px;width:calc(100% - 24px)}.playerbox{display:none;background:#000;border:1px solid var(--line);border-radius:14px;padding:10px;margin:18px 0}.playerbox video{display:block;width:100%;max-height:65vh;background:#000;border-radius:8px}.player-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}.modal{display:none;position:fixed;inset:0;background:#000b;z-index:10;align-items:center;justify-content:center;padding:16px}.dialog{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:22px;width:min(100%,420px)}.dialog input{width:100%;padding:12px;margin:7px 0 12px;border-radius:9px;border:1px solid var(--line);background:#10111b;color:#fff}.msg{font-size:.9rem;color:#ffd2dc;min-height:1.2em}.footer{padding:28px 5%;border-top:1px solid var(--line);color:var(--muted);font-size:.85rem}a{color:#ff8ba2}
+
+/* CinePlus Panamá · diseño móvil propio */
+:root{color-scheme:dark;--bg:#080a12;--panel:#121725;--muted:#a9b2c8;--accent:#f12d65;--line:#252c40;--gold:#ffc857}
+body{background:radial-gradient(ellipse at 80% -10%,#312044 0,transparent 42%),var(--bg);font-family:Inter,system-ui,-apple-system,sans-serif;letter-spacing:.01em}
+header{padding:14px 5%;background:rgba(8,10,18,.94);backdrop-filter:blur(14px);border-bottom:1px solid #26283b}
+.brand{font-size:1.18rem;letter-spacing:-.04em}.brand span{color:var(--accent)}
+button{transition:transform .15s ease,filter .15s ease;border-radius:999px}button:active{transform:scale(.97)}button:focus-visible,input:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
+.primary{background:linear-gradient(120deg,#ff426f,#d81750);box-shadow:0 7px 22px #ed245333}.secondary{background:#242b3d;border:1px solid #343d55}
+.hero{position:relative;overflow:hidden;padding:42px 5% 38px;background:linear-gradient(110deg,rgba(39,23,52,.96),rgba(13,19,35,.94) 62%,rgba(25,47,63,.9));border-bottom:1px solid #29263e}
+.hero:after{content:"CP+";position:absolute;right:-10px;bottom:-50px;font-weight:1000;font-size:clamp(8rem,25vw,18rem);letter-spacing:-.12em;color:#ffffff08;pointer-events:none}
+.hero h1{max-width:680px;font-size:clamp(2rem,7vw,4rem);line-height:1.03;letter-spacing:-.055em}.hero p{max-width:560px;font-size:1rem;color:#c2c7d8}
+.wrap{padding:28px 5%;max-width:1400px;margin:auto}
+.wrap h2{letter-spacing:-.035em;font-size:clamp(1.3rem,4vw,1.8rem)}
+.status,.playerbox{background:rgba(18,23,37,.92);border-color:#2b3249;border-radius:18px}
+.grid{grid-template-columns:repeat(auto-fill,minmax(min(100%,155px),1fr));gap:14px}
+.movie{background:linear-gradient(155deg,#171e30,#101522);border:1px solid #293149;border-radius:16px;box-shadow:0 8px 22px #0002;transition:transform .18s,border-color .18s;min-width:0}
+.movie:hover{transform:translateY(-3px);border-color:#69405c}
+.poster{height:155px;background:radial-gradient(circle at 20% 15%,#6b365f,#252748 52%,#122d3d);font-size:3rem}
+.movie h3{line-height:1.25}.movie p{line-height:1.4}
+input,select{max-width:100%;background:#0b1020!important;color:#fff!important;border:1px solid #303953!important;border-radius:12px!important;padding:12px!important}
+#playerbox video{width:100%;max-height:58vh;background:#000;border-radius:12px}
+#catalogo,#iptv-playlist,#tv-en-vivo,#adultos,#suscripcion{scroll-margin-top:80px}
+#catalogo,#iptv-playlist,#tv-en-vivo,#adultos,#suscripcion{border-bottom:1px solid #1d2435}
+#tv-en-vivo{background:linear-gradient(120deg,#101b2b,#10121f)}
+#suscripcion .movie{padding:8px}
+#modal{backdrop-filter:blur(8px)}
+@media(min-width:760px){.hero{padding-top:64px;padding-bottom:60px}.poster{height:180px}.wrap{padding-top:36px;padding-bottom:36px}}
+@media(max-width:480px){header{padding:12px 4%}.hero{padding:32px 5%}.wrap{padding:22px 4%}.grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.poster{height:125px}.movie h3{font-size:.94rem}.movie p{font-size:.8rem}.movie button{padding:9px 10px;font-size:.88rem}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{transition:none!important;scroll-behavior:auto!important}}
 </style></head><body>
 <header><div class="brand">CinePlus <span>Panamá</span></div><button class="secondary" id="accountBtn">Iniciar sesión</button></header>
 <section class="hero"><h1>Tu próxima historia empieza aquí</h1><p>Películas y videos que se reproducen aquí mismo, dentro de CinePlus.</p><button class="primary" onclick="document.querySelector('#catalogo').scrollIntoView({behavior:'smooth'})">Explorar catálogo</button></section>
