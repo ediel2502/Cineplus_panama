@@ -1,0 +1,8 @@
+{
+  "appId": "pa.cineplus.panama",
+  "appName": "CinePlus Panamá",
+  "webDir": "www",
+  "server": {
+    "androidScheme": "https"
+  }
+}
