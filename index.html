@@ -1,285 +1,36 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="theme-color" content="#071321">
-<meta name="description" content="CinePlus Panamá: descubre cine independiente, clásicos autorizados y enlaces a estrenos legales.">
-<link rel="manifest" href="manifest.json">
-<title>CinePlus Panamá</title>
-<style>
-:root{color-scheme:dark;--bg:#071321;--panel:#101f32;--blue:#168cff;--muted:#9db0c7;--line:#233851}
-*{box-sizing:border-box}body{margin:0;background:linear-gradient(180deg,#071321,#050b13);color:#f5f8fc;font-family:system-ui,-apple-system,Segoe UI,sans-serif}
-header{position:sticky;top:0;z-index:5;background:#071321ee;backdrop-filter:blur(12px);border-bottom:1px solid var(--line);padding:14px 16px;display:flex;align-items:center;justify-content:space-between}
-.logo{font-weight:900;font-size:20px;letter-spacing:-.6px}.logo span{color:#168cff}.pill{font-size:12px;color:#b8d8ff;border:1px solid #245b8e;border-radius:99px;padding:5px 9px}
-main{max-width:900px;margin:auto;padding:18px 14px 90px}.hero{border:1px solid #244665;border-radius:22px;padding:24px 20px;background:radial-gradient(ellipse at top right,#123d68 0,#10223a 42%,#0c1727 78%);min-height:220px;display:flex;flex-direction:column;justify-content:end}
-.eyebrow{color:#77bcff;text-transform:uppercase;font-size:11px;font-weight:800;letter-spacing:1.5px}.hero h1{font-size:32px;line-height:1.05;margin:9px 0}.hero p{color:#c1d0e0;max-width:520px;margin:0 0 16px}.btn{border:0;border-radius:12px;padding:11px 15px;font-weight:800;cursor:pointer;background:var(--blue);color:white}.btn.secondary{background:#1b3049;border:1px solid #35516f}.actions{display:flex;gap:9px;flex-wrap:wrap}
-.search{width:100%;margin:18px 0;padding:13px 14px;border:1px solid var(--line);border-radius:12px;background:#0c1929;color:white;font-size:16px}
-.section-head{display:flex;align-items:center;justify-content:space-between;margin:22px 2px 12px}.section-head h2{font-size:18px;margin:0}.muted{color:var(--muted);font-size:13px}
-.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.movie{background:var(--panel);border:1px solid var(--line);border-radius:16px;overflow:hidden}.poster{height:142px;padding:12px;display:flex;align-items:end;font-weight:900;font-size:21px;line-height:1.05;background:linear-gradient(135deg,#19456c,#152238 60%,#111827)}.poster.p2{background:linear-gradient(135deg,#6d2e45,#291c38 65%,#111827)}.poster.p3{background:linear-gradient(135deg,#326650,#172d37 65%,#111827)}.poster.p4{background:linear-gradient(135deg,#78522a,#30233a 65%,#111827)}.movie-body{padding:12px}.movie h3{margin:0 0 5px;font-size:15px}.movie p{margin:0 0 10px;color:var(--muted);font-size:12px;line-height:1.4}.tag{display:inline-block;color:#aad4ff;background:#132c47;border-radius:7px;padding:4px 7px;font-size:10px;margin-bottom:9px}
-.card{margin-top:18px;border:1px solid var(--line);background:#0c1929;border-radius:16px;padding:16px}.card h2{font-size:18px;margin:0 0 8px}.price{font-size:27px;font-weight:900;margin:7px 0}.list{padding-left:19px;color:#c1d0e0;font-size:14px;line-height:1.8}.notice{font-size:12px;color:#a9bbce;line-height:1.5}.footer{position:fixed;bottom:0;left:0;right:0;background:#071321f2;border-top:1px solid var(--line);display:flex;justify-content:space-around;padding:10px 4px calc(10px + env(safe-area-inset-bottom));z-index:6}.footer button{background:none;color:#b8c7d8;border:0;font-size:12px;padding:5px}.footer button:focus,.footer button:hover{color:#61b1ff}.hidden{display:none!important}
-.modal{position:fixed;inset:0;background:#000b;z-index:20;display:flex;align-items:center;justify-content:center;padding:16px}.modal-box{width:min(460px,100%);background:#0d1b2d;border:1px solid #35516f;border-radius:18px;padding:20px}.modal-box h2{margin-top:0}.modal-box input{width:100%;padding:12px;border:1px solid #35516f;background:#071321;color:white;border-radius:10px;margin:6px 0 12px;font-size:16px}.close{float:right;background:none;border:0;color:white;font-size:22px}
-@media(min-width:650px){.grid{grid-template-columns:repeat(4,minmax(0,1fr))}.poster{height:185px}.hero h1{font-size:42px}}
-.detail-content{line-height:1.6;color:#c1d0e0}
-.detail-content h3{color:#fff}
-.detail-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
-</style>
-</head>
-<body>
-<header><div class="logo">Cine<span>Plus</span> Panamá</div><span class="pill" id="statusPill">CinePlus Panamá</span></header>
-<main>
-<section class="hero">
-<div class="eyebrow">Tu cine, donde estés</div>
-<h1>Grandes historias.<br>Descúbrelas aquí.</h1>
-<p>Explora clásicos, cine independiente y enlaces a plataformas legales para encontrar estrenos.</p>
-<div class="actions"><button class="btn" onclick="showSection('catalogo')">Explorar catálogo</button><button class="btn secondary" onclick="showSection('planes')">Ver suscripción</button></div>
-</section>
-<input class="search" id="search" placeholder="Buscar películas o géneros…" aria-label="Buscar películas">
-<section id="catalogo">
-<div class="section-head"><h2>Explora nuestro catálogo</h2><span class="muted" id="count"></span></div>
-<div class="grid" id="movieGrid"></div>
-</section>
-<section class="card" id="planes">
-<h2>Prueba gratuita y plan mensual</h2>
-<p class="muted">Prueba de 8 días · después, plan de ejemplo de $3 USD/mes</p>
-<div class="price">$3 <span class="muted">USD / mes</span></div>
-<ul class="list"><li>Catálogo de películas autorizadas</li><li>Clásicos y cine independiente</li><li>Enlaces a servicios legales de estrenos</li></ul>
-<button class="btn" style="width:100%" onclick="openAccount()">Crear cuenta / iniciar prueba</button>
-<p class="notice">Crea tu cuenta o inicia sesión de forma segura. La prueba gratuita y los pagos todavía están en configuración.</p>
-</section>
-<section class="card" id="estrenos">
-<h2>Encontrar estrenos legales</h2>
-<p class="muted">Consulta disponibilidad en servicios oficiales. CinePlus no aloja ni distribuye estos estrenos.</p>
-<div class="actions"><a class="btn secondary" href="https://www.justwatch.com/" target="_blank" rel="noopener">Buscar en JustWatch</a><a class="btn secondary" href="https://www.youtube.com/" target="_blank" rel="noopener">Avances en YouTube</a></div>
-</section>
-<section class="card" id="cuenta">
-<h2>Mi cuenta</h2>
-<p id="accountText" class="muted">Inicia sesión o crea tu cuenta de CinePlus Panamá.</p>
-<button class="btn secondary" onclick="openAccount()">Ver opciones de cuenta</button>
-</section>
-</main>
-<nav class="footer" aria-label="Navegación">
-<button onclick="window.scrollTo({top:0,behavior:'smooth'})">⌂<br>Inicio</button>
-<button onclick="showSection('catalogo')">▦<br>Catálogo</button>
-<button onclick="showSection('estrenos')">▶<br>Estrenos legales</button>
-<button onclick="showSection('cuenta')">♙<br>Mi cuenta</button>
-</nav>
-<div id="accountModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
-  <div class="modal-box">
-    <button class="close" onclick="closeAccount()" aria-label="Cerrar">×</button>
-
-    <h2 id="modalTitle">Cuenta CinePlus</h2>
-    <p class="muted">Crea tu cuenta o inicia sesión.</p>
-
-    <label for="authEmail">Correo electrónico</label>
-    <input id="authEmail" type="email" autocomplete="email"
-      placeholder="tu correo electrónico" required>
-
-    <label for="authPassword">Contraseña (mínimo 8 caracteres)</label>
-    <input id="authPassword" type="password" autocomplete="new-password"
-      minlength="8" placeholder="Mínimo 8 caracteres" required>
-
-    <button class="btn" style="width:100%;margin-bottom:10px"
-      onclick="signUpUser()">Crear cuenta</button>
-
-    <button class="btn secondary" style="width:100%;margin-bottom:10px"
-      onclick="signInUser()">Iniciar sesión</button>
-
-    <button class="btn secondary" style="width:100%"
-      onclick="signOutUser()">Cerrar sesión</button>
-
-    <p id="authMsg" class="notice" aria-live="polite"></p>
-  </div>
-</div>
-<div id="movieModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="movieModalTitle">
-  <div class="modal-box">
-    <button class="close" onclick="closeMovie()" aria-label="Cerrar">×</button>
-    <span id="movieGenre" class="tag"></span>
-    <h2 id="movieModalTitle">Detalles de la película</h2>
-    <p id="movieYear" class="muted"></p>
-    <div id="movieDescription" class="detail-content"></div>
-    <div class="detail-actions">
-      <button class="btn secondary" onclick="closeMovie()">Volver al catálogo</button>
-    </div>
-  </div>
-</div>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script>
-  const SUPABASE_URL = 'https://dobccbeldwschjhaijlp.supabase.co';
-const SUPABASE_KEY = 'sb_publishable_9SVmtpCDaqNaginsr8c9RQ_XNhnhrRR';
-const supabaseClient = window.supabase.createClient(
-  SUPABASE_URL,
-  SUPABASE_KEY
-);
- const movies=[
- {title:"La noche estrellada",year:"Clásico de muestra",genre:"Drama",desc:"Una ficha de ejemplo para demostrar el catálogo. Sustituye por títulos con derechos confirmados.",style:""},
- {title:"El último viaje",year:"Cine independiente",genre:"Aventura",desc:"Ejemplo de película independiente. Añade un enlace de reproducción solo si tienes autorización.",style:"p2"},
- {title:"Bosque secreto",year:"Cine independiente",genre:"Drama",desc:"Una ficha ficticia para probar búsqueda, categorías y presentación.",style:"p3"},
- {title:"Horizonte perdido",year:"Clásico de muestra",genre:"Misterio",desc:"Ejemplo de catálogo. Comprueba los derechos territoriales antes de publicar cualquier película.",style:"p4"}
-];
-const grid=document.getElementById('movieGrid');
-function renderMovies(query=''){
- const list=movies.filter(m=>(m.title+' '+m.genre+' '+m.year).toLowerCase().includes(query.toLowerCase()));
- document.getElementById('count').textContent=list.length+' títulos';
- grid.innerHTML=list.map(m=>`<article class="movie"><div class="poster ${m.style}">${m.title}</div><div class="movie-body"><span class="tag">${m.genre}</span><h3>${m.title}</h3><p>${m.year}</p><button class="btn secondary" style="width:100%" onclick="movieInfo('${m.title.replace(/'/g,"\\'")}')">Ver detalles</button></div></article>`).join('')||'<p class="muted">No se encontraron títulos.</p>';
-}
-
-function movieInfo(title){
-  const m = movies.find(x => x.title === title);
-  if (!m) return;
-
-  document.getElementById('movieModalTitle').textContent = m.title;
-  document.getElementById('movieGenre').textContent = m.genre;
-  document.getElementById('movieYear').textContent = m.year;
-  document.getElementById('movieDescription').textContent = m.desc;
-
-  document.getElementById('movieModal').classList.remove('hidden');
-}
-
-function closeMovie(){
-  document.getElementById('movieModal').classList.add('hidden');
-}
-function showSection(id){document.getElementById(id).scrollIntoView({behavior:'smooth',block:'start'})}
-document.getElementById('search').addEventListener('input',e=>renderMovies(e.target.value));
-
-function openAccount(){
-  document.getElementById('accountModal').classList.remove('hidden');
-  refreshAuthState();
-}
-
-function closeAccount(){
-  document.getElementById('accountModal').classList.add('hidden');
-}
-
-async function signUpUser(){
-  const email = document.getElementById('authEmail').value.trim();
-  const password = document.getElementById('authPassword').value;
-  const msg = document.getElementById('authMsg');
-
-  if(!email || password.length < 8){
-    msg.textContent = 'Escribe un correo válido y una contraseña de al menos 8 caracteres.';
-    return;
-  }
-
-  msg.textContent = 'Creando cuenta...';
-
-  const {data, error} = await supabaseClient.auth.signUp({
-    email,
-    password,
-    options: {
-      emailRedirectTo: 'https://ediel2502.github.io/Cineplus_panama/'
-    }
-  });
-
-  if(error){
-    msg.textContent = 'No se pudo crear la cuenta: ' + error.message;
-    return;
-  }
-
-  msg.textContent = data.session
-    ? 'Cuenta creada e iniciada correctamente.'
-    : 'Cuenta creada. Revisa tu correo para confirmar la cuenta antes de iniciar sesión.';
-
-  await refreshAuthState();
-}
-
-async function signInUser(){
-  const email = document.getElementById('authEmail').value.trim();
-  const password = document.getElementById('authPassword').value;
-  const msg = document.getElementById('authMsg');
-
-  if(!email || !password){
-    msg.textContent = 'Escribe tu correo y contraseña.';
-    return;
-  }
-
-  msg.textContent = 'Iniciando sesión...';
-
-  const {error} = await supabaseClient.auth.signInWithPassword({
-    email,
-    password
-  });
-
-  if(error){
-    msg.textContent = 'No se pudo iniciar sesión: ' + error.message;
-    return;
-  }
-
-  msg.textContent = 'Sesión iniciada correctamente.';
-  await refreshAuthState();
-}
-
-async function signOutUser(){
-  const msg = document.getElementById('authMsg');
-  const {error} = await supabaseClient.auth.signOut();
-
-  if(error){
-    msg.textContent = 'No se pudo cerrar sesión: ' + error.message;
-    return;
-  }
-
-  msg.textContent = 'Sesión cerrada.';
-  await refreshAuthState();
-}
-
-
-async function refreshAuthState(){
-  const {data, error} = await supabaseClient.auth.getUser();
-
-  const accountText = document.getElementById('accountText');
-  const statusPill = document.getElementById('statusPill');
-
-  if(error){
-    accountText.textContent = 'No se pudo comprobar la sesión.';
-    return;
-  }
-
-  const user = data.user;
-
-  statusPill.textContent = user
-    ? 'Cuenta conectada'
-    : 'CinePlus Panamá';
-
-  if(!user){
-    accountText.textContent = 'Inicia sesión o crea tu cuenta.';
-    return;
-  }
-
-  accountText.textContent = 'Sesión iniciada: ' + user.email;
-
-const {data: filas, error: errorSuscripcion} =
-  await supabaseClient.rpc('check_my_subscription');
-
-if(errorSuscripcion){
-  accountText.textContent =
-    'No se pudo comprobar tu suscripción.';
-  console.error(errorSuscripcion);
-  return;
-}
-
-const suscripcion = filas?.[0];
-
-if(!suscripcion){
-  accountText.textContent =
-    'Tu prueba ha terminado o no tienes una suscripción activa.';
-  return;
-}
-
-if(suscripcion.subscription_status === 'trial'){
-  const fin = new Date(suscripcion.trial_ends_at);
-  const dias = Math.max(
-    0,
-    Math.ceil((fin.getTime() - Date.now()) / 86400000)
-  );
-
-  accountText.textContent = dias > 0
-    ? 'Prueba gratuita: quedan ' + dias + ' días.'
-    : 'Tu prueba gratuita ha terminado.';
-} else {
-  accountText.textContent = 'Tu suscripción está activa.';
-}
-}
-
-renderMovies();
-if('serviceWorker' in navigator && location.protocol.startsWith('http')){navigator.serviceWorker.register('./sw.js').catch(()=>{});}
+<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#071321"><link rel="manifest" href="manifest.json"><title>CinePlus Panamá</title><style>
+:root{color-scheme:dark;--bg:#071321;--panel:#101f32;--blue:#168cff;--muted:#9db0c7;--line:#233851}*{box-sizing:border-box}body{margin:0;background:linear-gradient(#071321,#050b13);color:#f5f8fc;font-family:system-ui,sans-serif}header{position:sticky;top:0;background:#071321ee;border-bottom:1px solid var(--line);padding:14px;display:flex;justify-content:space-between}.logo{font-size:20px;font-weight:900}.logo span{color:var(--blue)}main{max-width:1000px;margin:auto;padding:16px 14px 80px}.pill,.tag{border:1px solid #245b8e;border-radius:99px;padding:5px 9px;color:#b8d8ff;font-size:12px}.hero,.card{border:1px solid var(--line);border-radius:18px;padding:20px;background:#10223a;margin-bottom:16px}.hero h1{font-size:clamp(30px,7vw,44px);margin:8px 0}.muted,.notice{color:var(--muted);font-size:13px;line-height:1.5}.btn{border:0;border-radius:10px;padding:11px 14px;background:var(--blue);color:white;font-weight:800;margin:4px;cursor:pointer}.secondary{background:#1b3049;border:1px solid #35516f}.search,input{width:100%;padding:12px;margin:7px 0 12px;border:1px solid var(--line);border-radius:10px;background:#071321;color:white;font-size:16px}.filters,.actions{display:flex;flex-wrap:wrap;gap:7px}.filters button{background:#0c1929;border:1px solid var(--line);color:white;padding:8px 12px;border-radius:99px}.filters .active{background:var(--blue)}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.movie{background:var(--panel);border:1px solid var(--line);border-radius:14px;overflow:hidden}.poster{height:140px;padding:12px;display:flex;align-items:end;font-size:20px;font-weight:900;background:linear-gradient(135deg,#19456c,#111827)}.p2{background:linear-gradient(135deg,#6d2e45,#111827)}.p3{background:linear-gradient(135deg,#326650,#111827)}.p4{background:linear-gradient(135deg,#78522a,#111827)}.movie-body{padding:12px}.movie h3{font-size:15px}.movie p{font-size:12px;color:var(--muted)}.modal{position:fixed;inset:0;background:#000c;display:flex;align-items:center;justify-content:center;padding:15px;z-index:9}.hidden{display:none!important}.box{width:min(520px,100%);max-height:95vh;overflow:auto;background:#0d1b2d;border:1px solid #35516f;border-radius:16px;padding:20px}.close{float:right;background:none;border:0;color:white;font-size:24px}video{width:100%;background:black;border-radius:10px}.footer{position:fixed;bottom:0;left:0;right:0;background:#071321f2;display:flex;justify-content:space-around;padding:10px}.footer button{background:none;border:0;color:#c1d0e0}@media(min-width:650px){.grid{grid-template-columns:repeat(4,minmax(0,1fr))}.poster{height:180px}}
+</style></head><body><header><div class="logo">Cine<span>Plus</span> Panamá</div><span id="statusPill" class="pill">Modo de prueba</span></header><main>
+<section class="hero"><small>TU CINE, DONDE ESTÉS</small><h1>Grandes historias.<br>Descúbrelas aquí.</h1><p>Explora las fichas gratis. La reproducción de prueba requiere iniciar sesión y tener una suscripción vigente.</p><button class="btn" onclick="jump('catalogo')">Explorar catálogo</button><button class="btn secondary" onclick="jump('planes')">Ver plan</button><button class="btn secondary" onclick="openAccount()">Mi cuenta</button></section>
+<input class="search" id="search" placeholder="Buscar películas o géneros…"><div class="filters" id="filters"><button class="active" data-filter="Todos">Todos</button><button data-filter="Drama">Drama</button><button data-filter="Aventura">Aventura</button><button data-filter="Clásicos">Clásicos</button><button data-filter="18+">18+</button></div>
+<section id="catalogo"><h2>Catálogo de prueba <span id="count" class="muted"></span></h2><div id="movieGrid" class="grid"></div></section>
+<section id="planes" class="card"><h2>Prueba gratuita y plan mensual</h2><p class="muted">Prueba de 8 días · después $3 USD/mes (demostración)</p><h1>$3 <small class="muted">USD / mes</small></h1><p>Catálogo visible para todos. Reproducción con prueba vigente o suscripción activa.</p><button class="btn" onclick="openAccount()">Crear cuenta / iniciar sesión</button><p class="notice">Los pagos no están conectados. No introduzcas datos de tarjeta.</p></section>
+<section id="cuenta" class="card"><h2>Mi cuenta</h2><p id="accountText" class="muted">Inicia sesión o crea tu cuenta.</p><button class="btn secondary" onclick="openAccount()">Opciones de cuenta</button><button class="btn secondary" onclick="refreshAuthState()">Actualizar estado</button></section>
+<section class="card"><h2>Contenido legal</h2><p class="notice">Solo hay un vídeo de demostración externo. Las demás fichas son ejemplos; no hay canales IPTV ni contenido adulto en esta versión. Publica solo vídeos y canales con derechos de distribución.</p><a href="https://archive.org/details/movies" target="_blank" rel="noopener">Explorar películas en Internet Archive</a> · <a href="https://www.justwatch.com/" target="_blank" rel="noopener">Buscar disponibilidad legal</a></section></main>
+<nav class="footer"><button onclick="window.scrollTo({top:0,behavior:'smooth'})">⌂ Inicio</button><button onclick="jump('catalogo')">Catálogo</button><button onclick="jump('planes')">Plan</button><button onclick="jump('cuenta')">Cuenta</button></nav>
+<div id="accountModal" class="modal hidden"><div class="box"><button class="close" onclick="closeAccount()">×</button><h2>Cuenta CinePlus</h2><label>Correo electrónico</label><input id="authEmail" type="email" autocomplete="email" placeholder="tu correo"><label>Contraseña (mínimo 8 caracteres)</label><input id="authPassword" type="password" autocomplete="current-password" placeholder="Mínimo 8 caracteres"><button class="btn" onclick="signUpUser()">Crear cuenta</button><button class="btn secondary" onclick="signInUser()">Iniciar sesión</button><button class="btn secondary" onclick="signOutUser()">Cerrar sesión</button><p id="authMsg" class="notice"></p></div></div>
+<div id="movieModal" class="modal hidden"><div class="box"><button class="close" onclick="closeMovie()">×</button><span id="movieGenre" class="tag"></span><h2 id="movieModalTitle"></h2><p id="movieYear" class="muted"></p><p id="movieDescription"></p><button id="playButton" class="btn" onclick="requestPlayback()">Reproducir demo</button><button class="btn secondary" onclick="closeMovie()">Cerrar</button><p id="playMessage" class="notice"></p></div></div>
+<div id="playerModal" class="modal hidden"><div class="box"><button class="close" onclick="closePlayer()">×</button><h2>Reproductor de demostración</h2><video id="videoPlayer" controls playsinline></video><p class="notice">Vídeo de muestra externo. No es un canal IPTV ni un catálogo de películas comerciales.</p></div></div>
+<div id="ageModal" class="modal hidden"><div class="box"><h2>Contenido 18+</h2><p>Confirma que tienes 18 años o más. Este aviso no es una verificación legal de edad.</p><button class="btn" onclick="confirmAdult()">Tengo 18 años o más</button><button class="btn secondary" onclick="cancelAdult()">Volver</button></div></div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script>
+const SUPABASE_URL='https://dobccbeldwschjhaijlp.supabase.co',SUPABASE_KEY='sb_publishable_9SVmtpCDaqNaginsr8c9RQ_XNhnhrRR';
+const supabaseClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+const DEMO_VIDEO='https://storage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4';
+const movies=[{id:'demo1',title:'Big Buck Bunny',year:'Vídeo de demostración',genre:'Aventura',desc:'Corto animado de demostración para probar el reproductor.',style:'',demo:true},{id:'demo2',title:'La noche estrellada',year:'Ficha de muestra',genre:'Drama',desc:'Ejemplo sin vídeo conectado. Añade solo películas con derechos confirmados.',style:'p2',demo:false},{id:'demo3',title:'Bosque secreto',year:'Ficha de muestra',genre:'Clásicos',desc:'Ficha de ejemplo; no contiene una película real.',style:'p3',demo:false},{id:'demo4',title:'Zona 18+',year:'Categoría de muestra',genre:'18+',desc:'No contiene vídeo adulto. Publica únicamente contenido legal y autorizado.',style:'p4',demo:false}];
+let activeFilter='Todos',selectedMovie=null,adultConfirmed=false;const $=id=>document.getElementById(id);
+function jump(id){$(id).scrollIntoView({behavior:'smooth',block:'start'})}
+function renderMovies(q=''){let list=movies.filter(m=>(activeFilter==='Todos'||m.genre===activeFilter)&&(`${m.title} ${m.genre} ${m.year}`).toLowerCase().includes(q.toLowerCase()));$('count').textContent='· '+list.length+' títulos';$('movieGrid').innerHTML=list.map(m=>`<article class="movie"><div class="poster ${m.style}">${esc(m.title)}</div><div class="movie-body"><span class="tag">${esc(m.genre)}</span><h3>${esc(m.title)}</h3><p>${esc(m.year)}</p><button class="btn secondary" onclick="movieInfo('${m.id}')">Ver detalles</button></div></article>`).join('')||'<p>No se encontraron títulos.</p>'}
+function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+document.querySelectorAll('#filters button').forEach(b=>b.onclick=()=>{activeFilter=b.dataset.filter;document.querySelectorAll('#filters button').forEach(x=>x.classList.toggle('active',x===b));if(activeFilter==='18+'&&!adultConfirmed)$('ageModal').classList.remove('hidden');renderMovies($('search').value)});
+$('search').addEventListener('input',e=>renderMovies(e.target.value));
+function movieInfo(id){selectedMovie=movies.find(m=>m.id===id);$('movieModalTitle').textContent=selectedMovie.title;$('movieGenre').textContent=selectedMovie.genre;$('movieYear').textContent=selectedMovie.year;$('movieDescription').textContent=selectedMovie.desc;$('playButton').disabled=!selectedMovie.demo;$('playMessage').textContent=selectedMovie.demo?'Vídeo de demostración: requiere sesión y acceso vigente.':'No hay vídeo conectado a este título.';$('movieModal').classList.remove('hidden')}
+function closeMovie(){$('movieModal').classList.add('hidden')}function openAccount(){$('accountModal').classList.remove('hidden');refreshAuthState()}function closeAccount(){$('accountModal').classList.add('hidden')}
+async function signUpUser(){let email=$('authEmail').value.trim(),password=$('authPassword').value,msg=$('authMsg');if(!email||password.length<8){msg.textContent='Escribe un correo válido y contraseña de al menos 8 caracteres.';return}msg.textContent='Creando cuenta…';let {data,error}=await supabaseClient.auth.signUp({email,password,options:{emailRedirectTo:'https://ediel2502.github.io/Cineplus_panama/'}});if(error){msg.textContent='Error: '+error.message;return}msg.textContent=data.session?'Cuenta creada e iniciada.':'Cuenta creada. Confirma el correo antes de iniciar sesión.';await refreshAuthState()}
+async function signInUser(){let email=$('authEmail').value.trim(),password=$('authPassword').value,msg=$('authMsg');if(!email||!password){msg.textContent='Escribe correo y contraseña.';return}msg.textContent='Iniciando sesión…';let {error}=await supabaseClient.auth.signInWithPassword({email,password});if(error){msg.textContent='Error: '+error.message;return}msg.textContent='Sesión iniciada.';await refreshAuthState()}
+async function signOutUser(){let {error}=await supabaseClient.auth.signOut();$('authMsg').textContent=error?'Error al cerrar sesión: '+error.message:'Sesión cerrada.';await refreshAuthState()}
+async function getAccess(){let {data,error}=await supabaseClient.auth.getUser();if(error||!data.user)return {ok:false,reason:'Inicia sesión para reproducir.'};let {data:rows,error:err}=await supabaseClient.rpc('check_my_subscription');if(err){console.error(err);return {ok:false,reason:'No se pudo verificar la suscripción.'}}if(!rows||!rows.length)return {ok:false,reason:'Tu prueba terminó o no tienes una suscripción activa.'};return {ok:true}}
+async function refreshAuthState(){let {data,error}=await supabaseClient.auth.getUser();if(error){$('accountText').textContent='No se pudo comprobar la sesión.';return}let user=data.user;$('statusPill').textContent=user?'Cuenta conectada':'Modo de prueba';if(!user){$('accountText').textContent='Inicia sesión o crea tu cuenta.';return}let {data:rows,error:err}=await supabaseClient.rpc('check_my_subscription');if(err){$('accountText').textContent='No se pudo comprobar tu suscripción.';console.error(err);return}let s=rows?.[0];if(!s){$('accountText').textContent='Tu prueba terminó o no tienes una suscripción activa.';return}if(s.subscription_status==='trial'){let d=Math.max(0,Math.ceil((new Date(s.trial_ends_at).getTime()-Date.now())/86400000));$('accountText').textContent=d>0?'Prueba gratuita: quedan '+d+' días.':'Tu prueba gratuita ha terminado.'}else $('accountText').textContent='Tu suscripción está activa.'}
+async function requestPlayback(){if(!selectedMovie?.demo)return;$('playMessage').textContent='Comprobando acceso…';let a=await getAccess();if(!a.ok){$('playMessage').textContent=a.reason;if(a.reason.includes('Inicia sesión'))openAccount();else if(a.reason.includes('terminó'))jump('planes');return}closeMovie();$('videoPlayer').src=DEMO_VIDEO;$('playerModal').classList.remove('hidden');$('videoPlayer').play().catch(()=>{})}
+function closePlayer(){$('videoPlayer').pause();$('videoPlayer').removeAttribute('src');$('videoPlayer').load();$('playerModal').classList.add('hidden')}function confirmAdult(){adultConfirmed=true;$('ageModal').classList.add('hidden')}function cancelAdult(){activeFilter='Todos';adultConfirmed=false;$('ageModal').classList.add('hidden');document.querySelectorAll('#filters button').forEach(x=>x.classList.toggle('active',x.dataset.filter==='Todos'));renderMovies($('search').value)}
+renderMovies();supabaseClient.auth.onAuthStateChange(()=>setTimeout(refreshAuthState,0));refreshAuthState();if('serviceWorker'in navigator&&location.protocol.startsWith('http'))navigator.serviceWorker.register('./sw.js').catch(()=>{});
 </script></body></html>
