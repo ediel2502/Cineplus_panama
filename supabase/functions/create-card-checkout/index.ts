@@ -94,7 +94,7 @@ Deno.serve(async (req) => {
   const body = new URLSearchParams({
     CCLW: cclw,
     CMTN: amount.toFixed(2),
-    CDSC: "CinePlus Panamá - suscripción mensual",
+    CDSC: "CinePlus Panamá - pago único de 3 USD; sin renovación automática",
     RETURN_URL: hexUtf8(returnUrl),
     CARD_TYPE: "CARD",
     PARM_1: orderId,
