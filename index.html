@@ -312,4 +312,75 @@ cpRenderLiveChannels();
  }));
 })();
 </script>
+
+<style>
+#officialChannels .channel-buttons [data-live-source="official"]{display:none}
+#adultVideosGrid{margin-top:16px}
+#adultVideosGrid .movie{overflow:hidden}
+#adultVideosGrid .poster{height:145px}
+#officialChannelNote{min-height:2.5em}
+</style>
+<script>
+/* CinePlus: reproducción integrada de TV oficial y zona 18+ con fuentes autorizadas del usuario. */
+(function(){
+ const panel=document.getElementById('officialChannels');
+ if(panel){
+   const openButton=panel.querySelector('[data-live-source="official"]');
+   if(openButton)openButton.remove();
+   const frame=document.getElementById('officialChannelFrame');
+   const note=document.getElementById('officialChannelNote');
+   panel.querySelectorAll('[data-live-source]').forEach(function(btn){
+     btn.addEventListener('click',function(){
+       const key=btn.dataset.liveSource;
+       const src={
+         sertv:{url:'https://geo.dailymotion.com/player/x838p.html?autoplay=0&video=x81cvsk',name:'SERTV',info:'Reproductor integrado de SERTV. Pulsa ▶ dentro del reproductor para iniciar.'},
+         tvn:{url:'https://tvnpass.com/channel/tvn-en-vivo',name:'TVN',info:'Reproductor oficial de TVN Pass. Si el proveedor bloquea la reproducción incrustada, CinePlus no puede saltarse esa restricción.'},
+         tvmax:{url:'https://tvnpass.com/channel/tvmax-en-vivo',name:'TVMAX',info:'Reproductor oficial de TVN Pass. Si el proveedor bloquea la reproducción incrustada, CinePlus no puede saltarse esa restricción.'}
+       }[key];
+       if(!src)return;
+       frame.src=src.url;
+       frame.title='Reproductor integrado '+src.name;
+       note.textContent=src.info;
+       panel.querySelectorAll('[data-live-source]').forEach(function(b){b.className=b===btn?'primary':'secondary'});
+     });
+   });
+ }
+ const adultSection=document.getElementById('adultos');
+ if(!adultSection)return;
+ let grid=document.getElementById('adultVideosGrid');
+ if(!grid){
+   grid=document.createElement('div');grid.id='adultVideosGrid';grid.className='grid';
+   const ageNote=document.getElementById('ageNote');
+   ageNote.insertAdjacentElement('afterend',grid);
+ }
+ function renderAdultVideos(){
+   grid.replaceChildren();
+   const allowed=typeof cpAdultVerified!=='undefined'&&cpAdultVerified;
+   const items=(typeof playlistItems!=='undefined'?playlistItems:[]).filter(function(item){return item.category==='18+'});
+   if(!allowed){
+     const msg=document.createElement('p');msg.className='notice';msg.textContent='Los videos 18+ están ocultos. Confirma primero que tienes 18 años o más.';grid.append(msg);return;
+   }
+   if(!items.length){
+     const msg=document.createElement('p');msg.className='notice';msg.textContent='Todavía no hay videos 18+ cargados. Carga una lista M3U autorizada que contenga videos de esta categoría; aparecerán aquí y se reproducirán dentro de CinePlus.';grid.append(msg);return;
+   }
+   items.forEach(function(item){
+     const card=document.createElement('article');card.className='movie';
+     const poster=document.createElement('div');poster.className='poster';poster.textContent='🔞';
+     const title=document.createElement('h3');title.textContent=item.title;
+     const desc=document.createElement('p');desc.textContent=item.group||'Contenido 18+ de tu lista';
+     const play=document.createElement('button');play.className='primary';play.textContent='▶ Ver ahora';
+     play.onclick=function(){if(!cpAdultVerified){renderAdultVideos();return}playTitle(item.title,item.url);document.getElementById('playerNote').textContent='Video seleccionado desde tu lista autorizada. Pulsa Iniciar video.'};
+     card.append(poster,title,desc,play);grid.append(card);
+   });
+ }
+ const oldAccept=acceptM3u;
+ acceptM3u=function(text){oldAccept(text);renderAdultVideos()};
+ const ageButton=document.getElementById('ageCheck');
+ if(ageButton)ageButton.addEventListener('click',function(){setTimeout(renderAdultVideos,0)});
+ const ageNote=document.getElementById('ageNote');
+ if(ageNote)new MutationObserver(renderAdultVideos).observe(ageNote,{childList:true,characterData:true,subtree:true});
+ renderAdultVideos();
+})();
+</script>
+
 </body></html>
