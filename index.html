@@ -383,4 +383,69 @@ cpRenderLiveChannels();
 })();
 </script>
 
+
+<style>
+#legalPanamaChannels{margin-top:22px;padding:16px;border:1px solid #303953;border-radius:18px;background:#0c1220}
+#legalPanamaChannels .legal-channel-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(125px,1fr));gap:10px;margin-top:14px}
+#legalPanamaChannels .legal-channel{border:1px solid #2c3550;border-radius:12px;padding:12px;background:#141c2d;color:#fff;text-align:left;min-height:76px}
+#legalPanamaChannels .legal-channel strong{display:block;margin-bottom:5px}
+#legalPanamaChannels .legal-channel small{display:block;color:#b6bfd2;line-height:1.35}
+#legalPanamaChannels .legal-channel.active{border-color:#f12d65;background:#28182a}
+#legalPanamaChannels .legal-channel:disabled{opacity:.72;cursor:default}
+</style>
+<script>
+(function(){
+ const host=document.getElementById('tv-en-vivo');
+ const panel=document.getElementById('officialChannels');
+ if(!host||!panel||document.getElementById('legalPanamaChannels'))return;
+ const directory=document.createElement('section');
+ directory.id='legalPanamaChannels';
+ directory.innerHTML='<h3>Canales panameños legales</h3><p class="official-note">Incluimos reproductores de emisoras y sus sitios oficiales cuando están disponibles. Los canales sin una señal gratuita oficial integrada se muestran como identificados, pero no inventamos streams ni saltamos suscripciones, bloqueos geográficos o protecciones del proveedor.</p><div class="legal-channel-grid" id="legalChannelGrid"></div>';
+ panel.insertAdjacentElement('afterend',directory);
+ const frame=document.getElementById('officialChannelFrame');
+ const note=document.getElementById('officialChannelNote');
+ const grid=document.getElementById('legalChannelGrid');
+ const playable=[
+  {name:'SERTV',kind:'Señal oficial',url:'https://geo.dailymotion.com/player/x838p.html?autoplay=0&video=x81cvsk',note:'Reproductor de SERTV integrado.'},
+  {name:'TVN',kind:'TVN Pass',url:'https://tvnpass.com/channel/tvn-en-vivo',note:'Reproductor oficial TVN Pass. Puede requerir disponibilidad regional.'},
+  {name:'TVMAX',kind:'TVN Pass',url:'https://tvnpass.com/channel/tvmax-en-vivo',note:'Reproductor oficial TVN Pass. Puede requerir disponibilidad regional.'},
+  {name:'Telemetro',kind:'Medcom GO',url:'https://go.medcom.com.pa/telemetro-2',note:'Reproductor oficial de Medcom GO. Puede requerir acceso o no estar disponible en todas las regiones.'},
+  {name:'RPC TV',kind:'Medcom GO',url:'https://go.medcom.com.pa/live/rpctv/',note:'Reproductor oficial de Medcom GO. Puede requerir acceso o no estar disponible en todas las regiones.'}
+ ];
+ const listed=[
+  ['FETV','Canal abierto','No se ha confirmado una señal oficial gratuita incrustable.'],
+  ['NexTV','Canal abierto','No se ha confirmado una señal oficial gratuita incrustable.'],
+  ['Más 23','Canal abierto','No se ha confirmado una señal oficial gratuita incrustable.'],
+  ['OYE','Canal abierto','No se ha confirmado una señal oficial gratuita incrustable.'],
+  ['Hosanna Visión','Canal religioso','No se ha confirmado una señal oficial gratuita incrustable.'],
+  ['Asamblea Nacional','Canal institucional','La disponibilidad depende de la transmisión institucional vigente.'],
+  ['Canal TV','Canal abierto','No se ha confirmado una señal oficial gratuita incrustable.'],
+  ['ATV','Canal abierto','No se ha confirmado una señal oficial gratuita incrustable.'],
+  ['TVP / Geek','Canal abierto','No se ha confirmado una señal oficial gratuita incrustable.'],
+  ['Enlace','Canal religioso','No se ha confirmado una señal oficial gratuita incrustable.'],
+  ['Luar TV','Canal abierto','No se ha confirmado una señal oficial gratuita incrustable.'],
+  ['Viva','Canal abierto','No se ha confirmado una señal oficial gratuita incrustable.'],
+  ['Plus TV','Canal abierto','No se ha confirmado una señal oficial gratuita incrustable.']
+ ];
+ function activate(item,btn){
+  frame.src=item.url;frame.title='Canal '+item.name;
+  note.textContent=item.note+' La reproducción dentro de CinePlus depende de las políticas técnicas del emisor; si la emisora la bloquea, no se puede forzar.';
+  panel.querySelectorAll('[data-live-source]').forEach(b=>b.className='secondary');
+  grid.querySelectorAll('.legal-channel').forEach(b=>b.classList.remove('active'));
+  if(btn)btn.classList.add('active');
+  frame.scrollIntoView({behavior:'smooth',block:'nearest'});
+ }
+ playable.forEach(item=>{
+  const btn=document.createElement('button');btn.className='legal-channel';btn.innerHTML='<strong>▶ '+item.name+'</strong><small>'+item.kind+' · Reproducir integrado</small>';
+  btn.onclick=()=>activate(item,btn);grid.append(btn);
+ });
+ listed.forEach(([name,kind,detail])=>{
+  const btn=document.createElement('button');btn.className='legal-channel';
+  btn.innerHTML='<strong>'+name+'</strong><small>'+kind+' · disponibilidad oficial por confirmar</small>';
+  btn.onclick=()=>{note.textContent=name+': '+detail+' CinePlus no cargará una señal de terceros sin confirmar que sea oficial y autorizada.';grid.querySelectorAll('.legal-channel').forEach(b=>b.classList.remove('active'));btn.classList.add('active')};
+  grid.append(btn);
+ });
+})();
+</script>
+
 </body></html>
