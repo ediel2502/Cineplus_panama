@@ -243,7 +243,7 @@ cpRenderLiveChannels();
  panel.id='officialChannels';
  panel.innerHTML='<h3>Canales oficiales de Panamá</h3><p class="official-note">Fuentes de las propias emisoras. La disponibilidad puede depender de tu región, conexión o condiciones del canal. CinePlus no extrae ni redistribuye sus señales.</p><div class="channel-buttons"><button class="primary" data-live-source="sertv">SERTV · En directo</button><button class="secondary" data-live-source="tvn">TVN · En vivo</button><button class="secondary" data-live-source="tvmax">TVMAX · En vivo</button><button class="secondary" data-live-source="official">Abrir sitio oficial</button></div><iframe class="official-frame" id="officialChannelFrame" title="Reproductor de canal oficial" src="https://geo.dailymotion.com/player/x838p.html?autoplay=0&video=x81cvsk" allow="autoplay; fullscreen; picture-in-picture; encrypted-media" allowfullscreen loading="lazy" referrerpolicy="strict-origin-when-cross-origin"></iframe><p class="official-note" id="officialChannelNote">SERTV: reproductor publicado en el sitio oficial de SERTV. Si no carga dentro de la app, usa “Abrir sitio oficial”.</p>';
  const liveInput=document.getElementById('liveUrl');
- (liveInput?.parentElement || host).insertAdjacentElement('afterend',panel);
+ host.append(panel);
  const sources={
   sertv:{name:'SERTV',url:'https://geo.dailymotion.com/player/x838p.html?autoplay=0&video=x81cvsk',official:'https://sertv.gob.pa/en-directo/',note:'SERTV · Reproductor Dailymotion incrustado en el portal oficial de SERTV.'},
   tvn:{name:'TVN',url:'https://tvnpass.com/channel/tvn-en-vivo',official:'https://tvnpass.com/channel/tvn-en-vivo',note:'TVN en vivo · reproductor oficial TVN Pass. Si el sitio impide mostrarse incrustado, abre el sitio oficial.'},
