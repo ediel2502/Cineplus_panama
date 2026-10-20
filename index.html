@@ -687,4 +687,29 @@ cpRenderLiveChannels();
  document.querySelectorAll('#legalSources a').forEach(a=>{a.removeAttribute('target');a.style.display='none'});
  applyFilter();
 })();
+</script>
+<script>
+(function(){
+ const grid=document.getElementById('legalChannelGrid'),target=document.getElementById('allContentGrid');
+ if(!grid||!target)return;
+ function addOfficialChannelCards(){
+   Array.from(grid.querySelectorAll('button.legal-channel')).forEach(btn=>{
+     if(btn.dataset.cpWrapped==='1')return;
+     const text=(btn.innerText||'').toLowerCase();
+     if(!text.includes('reproducir integrado'))return;
+     btn.dataset.cpWrapped='1';
+     const card=document.createElement('article');card.className='movie';card.dataset.cpKind='live';
+     const poster=document.createElement('div');poster.className='poster';poster.textContent='📺';
+     const title=document.createElement('h3');title.textContent=(btn.querySelector('strong')?.innerText||'Canal en vivo').replace(/^▶\s*/,'');
+     const desc=document.createElement('p');desc.textContent='Señal oficial integrada cuando el emisor permite la reproducción.';
+     btn.className='primary';btn.textContent='▶ Ver aquí';btn.style.width='calc(100% - 24px)';
+     card.append(poster,title,desc,btn);target.append(card);
+   });
+   const modeButtons=document.querySelectorAll('#allFilters [data-kind]');
+   if(modeButtons.length){const active=document.querySelector('#allFilters [data-kind].active');if(active&&active.dataset.kind!=='all'){target.querySelectorAll('[data-cp-kind="live"]').forEach(card=>card.style.display=active.dataset.kind==='live'?'':'none')}}
+ }
+ addOfficialChannelCards();
+ new MutationObserver(addOfficialChannelCards).observe(grid,{childList:true});
+ document.querySelectorAll('#iptv-playlist,#tv-en-vivo,#adultos,#legalSources').forEach(section=>{section.style.display='none'});
+})();
 </script></body></html>
