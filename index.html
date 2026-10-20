@@ -227,4 +227,45 @@ if (cpOldAgeHandlerNote) {
 }
 cpRenderLiveChannels();
 </script>
+
+<style>
+#officialChannels{margin-top:22px;padding:16px;border:1px solid #303953;border-radius:18px;background:#101522}
+#officialChannels .channel-buttons{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin:14px 0}
+#officialChannels .channel-buttons button{width:100%;min-height:46px}
+#officialChannels .official-frame{width:100%;aspect-ratio:16/9;min-height:220px;border:1px solid #303953;border-radius:12px;background:#000}
+#officialChannels .official-note{color:#a9b2c8;font-size:.9rem;line-height:1.5}
+</style>
+<script>
+(function(){
+ const host=document.getElementById('tv-en-vivo');
+ if(!host || document.getElementById('officialChannels')) return;
+ const panel=document.createElement('div');
+ panel.id='officialChannels';
+ panel.innerHTML='<h3>Canales oficiales de Panamá</h3><p class="official-note">Fuentes de las propias emisoras. La disponibilidad puede depender de tu región, conexión o condiciones del canal. CinePlus no extrae ni redistribuye sus señales.</p><div class="channel-buttons"><button class="primary" data-live-source="sertv">SERTV · En directo</button><button class="secondary" data-live-source="tvn">TVN · En vivo</button><button class="secondary" data-live-source="tvmax">TVMAX · En vivo</button><button class="secondary" data-live-source="official">Abrir sitio oficial</button></div><iframe class="official-frame" id="officialChannelFrame" title="Reproductor de canal oficial" src="https://geo.dailymotion.com/player/x838p.html?autoplay=0&video=x81cvsk" allow="autoplay; fullscreen; picture-in-picture; encrypted-media" allowfullscreen loading="lazy" referrerpolicy="strict-origin-when-cross-origin"></iframe><p class="official-note" id="officialChannelNote">SERTV: reproductor publicado en el sitio oficial de SERTV. Si no carga dentro de la app, usa “Abrir sitio oficial”.</p>';
+ const liveInput=document.getElementById('liveUrl');
+ (liveInput?.parentElement || host).insertAdjacentElement('afterend',panel);
+ const sources={
+  sertv:{name:'SERTV',url:'https://geo.dailymotion.com/player/x838p.html?autoplay=0&video=x81cvsk',official:'https://sertv.gob.pa/en-directo/',note:'SERTV · Reproductor Dailymotion incrustado en el portal oficial de SERTV.'},
+  tvn:{name:'TVN',url:'https://tvnpass.com/channel/tvn-en-vivo',official:'https://tvnpass.com/channel/tvn-en-vivo',note:'TVN en vivo · reproductor oficial TVN Pass. Si el sitio impide mostrarse incrustado, abre el sitio oficial.'},
+  tvmax:{name:'TVMAX',url:'https://tvnpass.com/channel/tvmax-en-vivo',official:'https://tvnpass.com/channel/tvmax-en-vivo',note:'TVMAX en vivo · reproductor oficial TVN Pass. Si el sitio impide mostrarse incrustado, abre el sitio oficial.'}
+ };
+ let active='sertv';
+ function selectSource(key){
+  const src=sources[key]; if(!src) return;
+  active=key;
+  document.getElementById('officialChannelFrame').src=src.url;
+  document.getElementById('officialChannelNote').textContent=src.note;
+  panel.querySelectorAll('[data-live-source]').forEach(b=>{b.className=b.dataset.liveSource===key?'primary':'secondary'});
+ }
+ panel.querySelectorAll('[data-live-source]').forEach(b=>b.addEventListener('click',function(){
+  if(this.dataset.liveSource==='official'){
+   const src=sources[active];
+   window.open(src.official,'_blank','noopener,noreferrer');
+   document.getElementById('officialChannelNote').textContent='Abriendo la página oficial de '+src.name+'. Si el navegador bloquea la ventana, mantén pulsado el enlace o copia la dirección: '+src.official;
+   return;
+  }
+  selectSource(this.dataset.liveSource);
+ }));
+})();
+</script>
 </body></html>
