@@ -53,4 +53,178 @@ document.querySelectorAll('[data-filter]').forEach(b=>b.onclick=()=>{playlistFil
 function playTitle(title,url){const box=document.getElementById('playerbox'),v=document.getElementById('video'),source=document.getElementById('videoSource');if(liveHls){liveHls.destroy();liveHls=null}if(window.dashPlayer){window.dashPlayer.reset();window.dashPlayer=null}currentVideoUrl=url;document.getElementById('playingTitle').textContent=title;box.style.display='block';v.pause();v.removeAttribute('src');source.removeAttribute('src');v.load();if(/\\.m3u8($|[?#])/i.test(url)){if(v.canPlayType('application/vnd.apple.mpegurl')){v.src=url}else if(window.Hls&&Hls.isSupported()){liveHls=new Hls();liveHls.loadSource(url);liveHls.attachMedia(v)}else{document.getElementById('playerNote').textContent='Este dispositivo no admite esta señal HLS.';return}}else if(/\\.mpd($|[?#])/i.test(url)){if(window.dashjs){window.dashPlayer=dashjs.MediaPlayer().create();window.dashPlayer.initialize(v,url,false)}else{document.getElementById('playerNote').textContent='No se pudo cargar el reproductor DASH.';return}}else{v.src=url}v.load();document.getElementById('playerNote').textContent='Fuente cargada. Pulsa Iniciar video.';box.scrollIntoView({behavior:'smooth',block:'start'})}
 async function searchFilms(){const q=document.getElementById('filmSearch').value.trim(),note=document.getElementById('catalogNote'),grid=document.getElementById('filmGrid');note.textContent='Buscando películas…';grid.replaceChildren();try{const query=q||'collection:feature_films';const api='https://archive.org/advancedsearch.php?q='+encodeURIComponent('mediatype:movies AND ('+query+')')+'&fl[]=identifier,title,year,description&sort[]=downloads+desc&rows=18&page=1&output=json';const res=await fetch(api);if(!res.ok)throw Error('El catálogo no respondió');const json=await res.json();const docs=json.response?.docs||[];if(!docs.length){note.textContent='No se encontraron títulos. Prueba otra búsqueda.';return}note.textContent='Resultados de Internet Archive. Abre la ficha para revisar disponibilidad y derechos.';for(const film of docs){const card=document.createElement('article');card.className='movie';const poster=document.createElement('div');poster.className='poster';poster.textContent='🎞️';const h=document.createElement('h3');h.textContent=film.title||film.identifier;const p=document.createElement('p');p.textContent=(film.year?film.year+' · ':'')+'Archivo de Internet Archive';const b=document.createElement('button');b.className='primary';b.textContent='Buscar archivo reproducible';b.onclick=async()=>{b.disabled=true;b.textContent='Buscando archivo…';try{const mr=await fetch('https://archive.org/metadata/'+encodeURIComponent(film.identifier));const meta=await mr.json();const files=meta.files||[];const file=files.find(f=>/\.mp4$/i.test(f.name||'')&&!f.name.includes('_thumb')&&!f.name.includes('sample'))||files.find(f=>/\.(ogv|webm)$/i.test(f.name||''));if(!file)throw Error('Este título no tiene archivo de video compatible.');const url='https://archive.org/download/'+encodeURIComponent(film.identifier)+'/'+file.name.split('/').map(encodeURIComponent).join('/');playTitle(film.title||film.identifier,url)}catch(e){b.disabled=false;b.textContent='No disponible; probar ficha';p.textContent=e.message+' · '+film.identifier;}};const a=document.createElement('a');a.href='https://archive.org/details/'+encodeURIComponent(film.identifier);a.target='_blank';a.rel='noopener';a.textContent='Ver ficha y derechos';a.style.display='block';a.style.padding='0 12px 12px';card.append(poster,h,p,b,a);grid.append(card)}}catch(e){note.textContent='No se pudo conectar al catálogo. Revisa la conexión e inténtalo otra vez.'}}
 document.getElementById('searchFilms').onclick=searchFilms;document.getElementById('filmSearch').addEventListener('keydown',e=>{if(e.key==='Enter')searchFilms()});searchFilms();document.getElementById('startVideo').onclick=async()=>{const v=document.getElementById('video');try{await v.play();document.getElementById('playerNote').textContent='Reproduciendo: '+document.getElementById('playingTitle').textContent+'.'}catch(e){document.getElementById('playerNote').textContent='No se pudo reproducir dentro de la página. Error del reproductor: '+(v.error?('código '+v.error.code):e.message)+'. Revisa tu conexión e inténtalo otra vez.'}};document.getElementById('video').addEventListener('error',()=>{const v=document.getElementById('video');document.getElementById('playerNote').textContent='El navegador no pudo cargar el video (código '+(v.error?v.error.code:'desconocido')+'). Intenta reproducirlo de nuevo más tarde.';});document.getElementById('closePlayer').onclick=()=>{const v=document.getElementById('video');v.pause();v.removeAttribute('src');v.load();document.getElementById('playerbox').style.display='none'};let liveHls=null;document.getElementById('demoLive').onclick=()=>{document.getElementById('liveUrl').value='https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8';document.getElementById('loadLive').click()};document.getElementById('loadLive').onclick=()=>{const url=document.getElementById('liveUrl').value.trim(),note=document.getElementById('liveNote');if(!url.startsWith('https://')){note.textContent='Introduce una URL HTTPS oficial autorizada.';return}const box=document.getElementById('playerbox'),v=document.getElementById('video'),source=document.getElementById('videoSource');if(liveHls){liveHls.destroy();liveHls=null}v.pause();v.removeAttribute('src');source.removeAttribute('src');v.load();document.getElementById('playingTitle').textContent='TV en vivo';box.style.display='block';if(/\.m3u8($|[?#])/i.test(url)){if(v.canPlayType('application/vnd.apple.mpegurl')){v.src=url;note.textContent='Señal HLS cargada. Pulsa Iniciar video.'}else if(window.Hls&&Hls.isSupported()){liveHls=new Hls({enableWorker:true,lowLatencyMode:true});liveHls.loadSource(url);liveHls.attachMedia(v);liveHls.on(Hls.Events.MANIFEST_PARSED,()=>{note.textContent='Canal HLS listo. Pulsa Iniciar video.'});liveHls.on(Hls.Events.ERROR,(_event,data)=>{if(data.fatal)note.textContent='No se pudo reproducir esta señal. Puede estar caída, bloquear reproducción desde otra web (CORS) o no ser una URL HLS válida.'})}else{note.textContent='Este dispositivo no admite HLS en el reproductor actual.';return}}else{v.src=url;note.textContent='Fuente cargada. Pulsa Iniciar video; el servidor debe permitir reproducción web.'}box.scrollIntoView({behavior:'smooth',block:'start'});};const paymentStatus=document.getElementById('paymentStatus');document.getElementById('cardPayBtn').onclick=()=>{paymentStatus.textContent='Pago con tarjeta aún no activado: falta configurar un proveedor de pagos y su backend seguro. No se realizará ningún cargo.'};document.getElementById('paypalPayBtn').onclick=()=>{paymentStatus.textContent='PayPal aún no activado: falta conectar la cuenta comercial y configurar el backend para crear y verificar pagos. No se realizará ningún cargo.'};document.getElementById('ageCheck').onclick=()=>{const ok=confirm('¿Confirmas que tienes 18 años o más?');document.getElementById('ageNote').textContent=ok?'Mayoría de edad declarada. Aún no hay contenido adulto cargado.':'Acceso restringido.';};client.auth.onAuthStateChange(()=>setTimeout(refreshAccess,0));refreshAccess();
-</script></body></html>
+</script>
+<style>
+#liveChannelsGrid{margin-top:16px}
+#adultos .adult-lock{padding:14px;border:1px solid #59405b;background:#21182a;border-radius:12px;margin:12px 0;color:#f3d8ed}
+#adultos .adult-lock strong{color:#ffc857}
+</style>
+<script>
+/* CinePlus v2: live channel list, corrected HLS/DASH playback and adult-content gate. */
+let cpAdultVerified = false;
+function cpRenderLiveChannels() {
+  const section = document.getElementById('tv-en-vivo');
+  if (!section) return;
+  let grid = document.getElementById('liveChannelsGrid');
+  if (!grid) {
+    grid = document.createElement('div');
+    grid.id = 'liveChannelsGrid';
+    grid.className = 'grid';
+    const note = document.getElementById('liveNote');
+    note.insertAdjacentElement('afterend', grid);
+  }
+  grid.replaceChildren();
+  const channels = (playlistItems || []).filter(function(item) { return item.category === 'TV en vivo'; });
+  if (!channels.length) return;
+  const heading = document.createElement('h3');
+  heading.textContent = 'Canales de tu lista';
+  grid.insertAdjacentElement('beforebegin', heading);
+  channels.forEach(function(item) {
+    const card = document.createElement('article');
+    card.className = 'movie';
+    const poster = document.createElement('div');
+    poster.className = 'poster';
+    poster.textContent = '📡';
+    const title = document.createElement('h3');
+    title.textContent = item.title;
+    const detail = document.createElement('p');
+    detail.textContent = item.group || 'TV en vivo';
+    const play = document.createElement('button');
+    play.className = 'primary';
+    play.textContent = 'Ver canal';
+    play.onclick = function() {
+      playTitle(item.title, item.url);
+      document.getElementById('liveNote').textContent = 'Canal seleccionado: ' + item.title + '. Si no inicia, verifica que la señal siga activa y permita reproducción web.';
+    };
+    card.append(poster, title, detail, play);
+    grid.append(card);
+  });
+}
+const cpAcceptM3uOriginal = acceptM3u;
+acceptM3u = function(text) {
+  cpAcceptM3uOriginal(text);
+  cpRenderLiveChannels();
+};
+renderM3u = function() {
+  const grid = document.getElementById('m3uGrid');
+  grid.replaceChildren();
+  const adultRequested = playlistFilter === '18+';
+  if (adultRequested && !cpAdultVerified) {
+    document.getElementById('m3uNote').textContent = 'La categoría 18+ está bloqueada. Confirma primero tu mayoría de edad en la Zona 18+.';
+    return;
+  }
+  const items = playlistItems.filter(function(item) {
+    if (item.category === '18+' && !cpAdultVerified) return false;
+    return playlistFilter === 'Todos' || item.category === playlistFilter;
+  });
+  items.forEach(function(item) {
+    const card = document.createElement('article');
+    card.className = 'movie';
+    const poster = document.createElement('div');
+    poster.className = 'poster';
+    poster.textContent = item.category === '18+' ? '🔞' : item.category === 'Películas' ? '🎬' : item.category === 'Series' ? '📺' : '📡';
+    const title = document.createElement('h3');
+    title.textContent = item.title;
+    const detail = document.createElement('p');
+    detail.textContent = item.group || item.category;
+    const play = document.createElement('button');
+    play.className = 'primary';
+    play.textContent = 'Reproducir';
+    play.onclick = function() {
+      if (item.category === '18+' && !cpAdultVerified) {
+        document.getElementById('ageNote').textContent = 'Acceso bloqueado. Confirma que eres mayor de edad.';
+        return;
+      }
+      playTitle(item.title, item.url);
+    };
+    card.append(poster, title, detail, play);
+    grid.append(card);
+  });
+  document.getElementById('m3uNote').textContent = playlistItems.length
+    ? items.length + ' de ' + playlistItems.length + ' elementos · ' + (playlistFilter === 'Todos' ? 'Todas las categorías autorizadas' : playlistFilter)
+    : 'No hay lista cargada.';
+};
+playTitle = function(title, url) {
+  const box = document.getElementById('playerbox');
+  const video = document.getElementById('video');
+  const source = document.getElementById('videoSource');
+  if (!url || !/^https:\/\//i.test(url)) {
+    document.getElementById('playerNote').textContent = 'Usa una dirección HTTPS válida para reproducir este contenido.';
+    return;
+  }
+  if (typeof liveHls !== 'undefined' && liveHls) { liveHls.destroy(); liveHls = null; }
+  if (window.dashPlayer) { window.dashPlayer.reset(); window.dashPlayer = null; }
+  video.pause();
+  video.removeAttribute('src');
+  source.removeAttribute('src');
+  video.load();
+  document.getElementById('playingTitle').textContent = title || 'Reproduciendo';
+  box.style.display = 'block';
+  if (/\.m3u8(?:$|[?#])/i.test(url)) {
+    if (video.canPlayType('application/vnd.apple.mpegurl')) {
+      video.src = url;
+      document.getElementById('playerNote').textContent = 'Señal HLS cargada. Pulsa Iniciar video.';
+    } else if (window.Hls && Hls.isSupported()) {
+      liveHls = new Hls({ enableWorker: true, lowLatencyMode: true });
+      liveHls.loadSource(url);
+      liveHls.attachMedia(video);
+      liveHls.on(Hls.Events.MANIFEST_PARSED, function() {
+        document.getElementById('playerNote').textContent = 'Video listo. Pulsa Iniciar video.';
+      });
+      liveHls.on(Hls.Events.ERROR, function(_event, data) {
+        if (data.fatal) document.getElementById('playerNote').textContent = 'No se pudo cargar la señal HLS. Verifica la URL, la conexión, CORS y los permisos del proveedor.';
+      });
+    } else {
+      document.getElementById('playerNote').textContent = 'Este dispositivo no admite HLS en el reproductor actual.';
+      return;
+    }
+  } else if (/\.mpd(?:$|[?#])/i.test(url)) {
+    if (!window.dashjs) {
+      document.getElementById('playerNote').textContent = 'No está disponible el reproductor DASH.';
+      return;
+    }
+    window.dashPlayer = dashjs.MediaPlayer().create();
+    window.dashPlayer.initialize(video, url, false);
+    document.getElementById('playerNote').textContent = 'Video DASH cargado. Pulsa Iniciar video.';
+  } else {
+    video.src = url;
+    document.getElementById('playerNote').textContent = 'Fuente cargada. Pulsa Iniciar video.';
+  }
+  video.load();
+  box.scrollIntoView({ behavior: 'smooth', block: 'start' });
+};
+document.getElementById('loadLive').onclick = function() {
+  const url = document.getElementById('liveUrl').value.trim();
+  const note = document.getElementById('liveNote');
+  if (!/^https:\/\//i.test(url)) {
+    note.textContent = 'Introduce una URL HTTPS oficial y autorizada.';
+    return;
+  }
+  if (!/\.m3u8(?:$|[?#])/i.test(url) && !/\.mpd(?:$|[?#])/i.test(url) && !/\.(mp4|webm|ogv)(?:$|[?#])/i.test(url)) {
+    note.textContent = 'La URL no parece una señal HLS (.m3u8), DASH (.mpd) o un video compatible.';
+    return;
+  }
+  playTitle('TV en vivo', url);
+  note.textContent = 'Señal seleccionada. Pulsa “Iniciar video” en el reproductor.';
+};
+document.getElementById('ageCheck').onclick = function() {
+  const ok = window.confirm('Zona 18+: ¿confirmas que tienes 18 años o más y que solo abrirás contenido legalmente autorizado?');
+  cpAdultVerified = !!ok;
+  document.getElementById('ageNote').textContent = cpAdultVerified
+    ? 'Mayoría de edad declarada. Solo aparecerán elementos de tu lista M3U; CinePlus no proporciona ni verifica el contenido de terceros.'
+    : 'Acceso restringido. La categoría 18+ permanece bloqueada.';
+  document.getElementById('ageCheck').textContent = cpAdultVerified ? 'Bloquear Zona 18+' : 'Confirmar que tengo 18 años o más';
+  if (!cpAdultVerified && playlistFilter === '18+') playlistFilter = 'Todos';
+  renderM3u();
+  cpRenderLiveChannels();
+};
+const cpOldAgeHandlerNote = document.getElementById('ageNote');
+if (cpOldAgeHandlerNote) {
+  const lock = document.createElement('div');
+  lock.className = 'adult-lock';
+  lock.innerHTML = '<strong>Control de acceso</strong><br>La categoría 18+ de tu lista se mantiene oculta hasta confirmar mayoría de edad. No se incluye contenido adulto de terceros.';
+  cpOldAgeHandlerNote.insertAdjacentElement('beforebegin', lock);
+}
+cpRenderLiveChannels();
+</script>
+</body></html>
