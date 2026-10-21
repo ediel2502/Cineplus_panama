@@ -38,6 +38,8 @@ Se añadió una solicitud de pago con revisión manual. La aplicación **no cobr
 2. Despliega la función: `supabase functions deploy create-manual-payment-request`.
 3. Confirma que los secretos `SUPABASE_URL`, `SUPABASE_ANON_KEY` y `SUPABASE_SERVICE_ROLE_KEY` estén configurados en Edge Functions. La clave `service_role` nunca se pone en el navegador.
 4. Comparte dentro de la app los datos de cobro oficiales de CinePlus (número Yappy comercial, cuenta bancaria o enlace PayPal). Aún deben configurarse; no se inventan números ni enlaces.
-5. Revisa las filas nuevas de `public.manual_payment_requests`. Solo después de comprobar el pago, marca la solicitud como revisada y activa manualmente la suscripción en la tabla que usa la función RPC `check_my_subscription`. Esta activación final depende del esquema de suscripciones que tengas configurado en tu proyecto Supabase.
+5. Revisa las solicitudes desde el panel de administrador dentro de la app. Al aprobar una solicitud, el backend activa 8 días de acceso en `public.subscriptions`.
+
+Datos de cobro configurados: Yappy **6566-8184**; PayPal **edilbertosanchez930@gmail.com**. Precio **$3 por 8 días**. Verifica el movimiento en tu cuenta antes de aprobar.
 
 **Importante:** el checkout manual registra una solicitud y una referencia, no demuestra que el dinero haya llegado. No se debe activar una cuenta solo porque el usuario escribió un número de operación. La tarjeta queda deshabilitada hasta conectar un procesador real.
