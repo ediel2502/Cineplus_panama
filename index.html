@@ -98,9 +98,10 @@ function cpRenderLicensedStarterFilms(grid,q){
   const poster=document.createElement('div');poster.className='poster';poster.textContent=f.emoji;
   const h=document.createElement('h3');h.textContent=f.title;
   const p=document.createElement('p');p.textContent=f.year+' · '+f.credit+' · Sin anuncios insertados por CinePlus';
+  const lic=document.createElement('a');lic.href=f.license;lic.target='_blank';lic.rel='noopener noreferrer';lic.textContent='Ver licencia';lic.style.display='inline-block';lic.style.margin='0 12px 12px';lic.style.color='#aebeff';
   const b=document.createElement('button');b.className='primary';b.textContent='▶ Ver ahora';
-  b.onclick=async()=>{if(!await requireLogin())return;playTitle(f.title,f.url);document.getElementById('playerNote').textContent='Licencia y atribución: '+f.credit+'. Reproducción directa dentro de CinePlus; la disponibilidad depende del servidor de origen.';document.getElementById('playerbox').scrollIntoView({behavior:'smooth',block:'start'});};
-  poster.style.cursor='pointer';poster.onclick=()=>b.click();card.append(poster,h,p,b);grid.append(card);
+  b.onclick=async()=>{if(!await requireLogin())return;playTitle(f.title,f.url);document.getElementById('playerNote').textContent='Licencia: '+f.license+' · Atribución: '+f.credit+'. Reproducción dentro de CinePlus; la disponibilidad depende del servidor de origen.';document.getElementById('playerbox').scrollIntoView({behavior:'smooth',block:'start'});};
+  poster.style.cursor='pointer';poster.onclick=()=>b.click();card.append(poster,h,p,lic,b);grid.append(card);
  });
 }
 async function searchFilms(){
