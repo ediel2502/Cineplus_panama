@@ -38,7 +38,7 @@ jobs:
           const required = [
             'id="catalogo"', 'id="iptv-playlist"', 'id="tv-en-vivo"',
             'id="filmGrid"', 'id="m3uGrid"', 'id="video"',
-            'function parseM3u(', 'function playTitle(', 'id="demoLive"'
+            'function parseM3u(', 'function playTitle(', 'id="loadLive"'
           ];
           const missing = required.filter(item => !html.includes(item));
           if (missing.length) {
