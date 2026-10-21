@@ -50,6 +50,22 @@ jobs:
             process.exit(1);
           }
           console.log('Required catalog, IPTV, live TV and playback hooks found.');
+          const vm = require('vm');
+          const scripts = [...html.matchAll(/<script\\b[^>]*>([\\s\\S]*?)<\\/script>/gi)]
+            .map(match => match[1].trim()).filter(Boolean);
+          if (!scripts.length) {
+            console.error('No inline JavaScript found to validate');
+            process.exit(1);
+          }
+          for (let i = 0; i < scripts.length; i++) {
+            try {
+              new vm.Script(scripts[i], { filename: `index-inline-${i + 1}.js` });
+            } catch (error) {
+              console.error('JavaScript syntax error:', error.message);
+              process.exit(1);
+            }
+          }
+          console.log(`Validated syntax for ${scripts.length} inline JavaScript block(s).`);
           NODE
       - name: Prepare web app
         run: |
