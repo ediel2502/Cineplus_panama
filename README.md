@@ -29,3 +29,15 @@ PagueloFacil ofrece checkout alojado para tarjetas Visa/Mastercard y separa cred
 - La función y la migración son archivos preparados en GitHub, pero deben desplegarse/ejecutarse en Supabase y configurarse las credenciales antes de que funcionen.
 - El retorno del checkout no activa la suscripción. Falta integrar y verificar el webhook oficial antes de habilitar acceso pagado.
 - No hay secretos reales en este repositorio.
+
+## Checkout manual (Yappy, transferencia y PayPal)
+
+Se añadió una solicitud de pago con revisión manual. La aplicación **no cobra automáticamente** ni activa acceso al enviar una referencia; el administrador debe verificar el movimiento y activar el usuario.
+
+1. En Supabase SQL Editor, ejecuta `supabase/migrations/202610210001_manual_payment_requests.sql`.
+2. Despliega la función: `supabase functions deploy create-manual-payment-request`.
+3. Confirma que los secretos `SUPABASE_URL`, `SUPABASE_ANON_KEY` y `SUPABASE_SERVICE_ROLE_KEY` estén configurados en Edge Functions. La clave `service_role` nunca se pone en el navegador.
+4. Comparte dentro de la app los datos de cobro oficiales de CinePlus (número Yappy comercial, cuenta bancaria o enlace PayPal). Aún deben configurarse; no se inventan números ni enlaces.
+5. Revisa las filas nuevas de `public.manual_payment_requests`. Solo después de comprobar el pago, marca la solicitud como revisada y activa manualmente la suscripción en la tabla que usa la función RPC `check_my_subscription`. Esta activación final depende del esquema de suscripciones que tengas configurado en tu proyecto Supabase.
+
+**Importante:** el checkout manual registra una solicitud y una referencia, no demuestra que el dinero haya llegado. No se debe activar una cuenta solo porque el usuario escribió un número de operación. La tarjeta queda deshabilitada hasta conectar un procesador real.
