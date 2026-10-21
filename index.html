@@ -526,12 +526,7 @@ cpRenderLiveChannels();
   panel.querySelectorAll('[data-live-source]').forEach(b=>{b.className=b.dataset.liveSource===key?'primary':'secondary'});
  }
  panel.querySelectorAll('[data-live-source]').forEach(b=>b.addEventListener('click',function(){
-  if(this.dataset.liveSource==='official'){
-   const src=sources[active];
-   window.open(src.official,'_blank','noopener,noreferrer');
-   document.getElementById('officialChannelNote').textContent='Abriendo la página oficial de '+src.name+'. Si el navegador bloquea la ventana, mantén pulsado el enlace o copia la dirección: '+src.official;
-   return;
-  }
+  if(this.dataset.liveSource==='official') return;
   selectSource(this.dataset.liveSource);
  }));
 })();
