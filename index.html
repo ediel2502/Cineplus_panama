@@ -81,12 +81,31 @@ document.getElementById('m3uFile').onchange=async e=>{const file=e.target.files?
 document.querySelectorAll('[data-filter]').forEach(b=>b.onclick=()=>{playlistFilter=b.dataset.filter;renderM3u()});
 async function playTitle(title,url){if(!await requireLogin())return;const box=document.getElementById('playerbox'),v=document.getElementById('video'),source=document.getElementById('videoSource');if(liveHls){liveHls.destroy();liveHls=null}if(window.dashPlayer){window.dashPlayer.reset();window.dashPlayer=null}currentVideoUrl=url;document.getElementById('playingTitle').textContent=title;box.style.display='block';v.pause();v.removeAttribute('src');source.removeAttribute('src');v.load();if(/\\.m3u8($|[?#])/i.test(url)){if(v.canPlayType('application/vnd.apple.mpegurl')){v.src=url}else if(window.Hls&&Hls.isSupported()){liveHls=new Hls();liveHls.loadSource(url);liveHls.attachMedia(v)}else{document.getElementById('playerNote').textContent='Este dispositivo no admite esta señal HLS.';return}}else if(/\\.mpd($|[?#])/i.test(url)){if(window.dashjs){window.dashPlayer=dashjs.MediaPlayer().create();window.dashPlayer.initialize(v,url,false)}else{document.getElementById('playerNote').textContent='No se pudo cargar el reproductor DASH.';return}}else{v.src=url}v.load();document.getElementById('playerNote').textContent='Fuente cargada. Pulsa Iniciar video.';box.scrollIntoView({behavior:'smooth',block:'start'})}
 function cpHasRedistributionLicense(meta){const m=meta&&meta.metadata?meta.metadata:meta||{};const raw=Array.isArray(m.licenseurl)?m.licenseurl.join(' '):String(m.licenseurl||'');const lic=raw.toLowerCase();if(!lic)return false;if(/by-nc|by-nd|noncommercial|no.?derivatives/.test(lic))return false;return /creativecommons\.org\/(licenses\/(by|by-sa)\/|publicdomain\/(zero|mark)|licenses\/cc0)/.test(lic)||/creativecommons\.org\/publicdomain\/(zero|mark)/.test(lic);}
+const cpLicensedStarterFilms=[
+ {title:'Big Buck Bunny',year:'2008',genre:'animation',emoji:'🐰',url:'https://download.blender.org/peach/bigbuckbunny_movies/BigBuckBunny_320x180.mp4',credit:'Blender Foundation · CC BY 3.0',license:'https://creativecommons.org/licenses/by/3.0/'},
+ {title:'Sintel',year:'2010',genre:'animation',emoji:'🐉',url:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4',credit:'Blender Foundation · CC BY 3.0',license:'https://creativecommons.org/licenses/by/3.0/'},
+ {title:'Tears of Steel',year:'2012',genre:'scifi',emoji:'🤖',url:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4',credit:'Blender Foundation · CC BY 3.0',license:'https://creativecommons.org/licenses/by/3.0/'},
+ {title:'Elephants Dream',year:'2006',genre:'animation',emoji:'🐘',url:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4',credit:'Blender Foundation · CC BY 2.5',license:'https://creativecommons.org/licenses/by/2.5/'}
+];
+function cpRenderLicensedStarterFilms(grid,q){
+ const query=(q||'').toLowerCase();
+ cpLicensedStarterFilms.filter(f=>!query||f.title.toLowerCase().includes(query)).forEach(f=>{
+  const card=document.createElement('article');card.className='movie';card.dataset.cpKind='movie';card.dataset.cpSource='catalog-film';
+  const poster=document.createElement('div');poster.className='poster';poster.textContent=f.emoji;
+  const h=document.createElement('h3');h.textContent=f.title;
+  const p=document.createElement('p');p.textContent=f.year+' · '+f.credit+' · Sin anuncios insertados por CinePlus';
+  const b=document.createElement('button');b.className='primary';b.textContent='▶ Ver ahora';
+  b.onclick=async()=>{if(!await requireLogin())return;playTitle(f.title,f.url);document.getElementById('playerNote').textContent='Licencia y atribución: '+f.credit+'. Reproducción directa dentro de CinePlus; la disponibilidad depende del servidor de origen.';document.getElementById('playerbox').scrollIntoView({behavior:'smooth',block:'start'});};
+  poster.style.cursor='pointer';poster.onclick=()=>b.click();card.append(poster,h,p,b);grid.append(card);
+ });
+}
 async function searchFilms(){
  const q=document.getElementById('filmSearch').value.trim();
  const note=document.getElementById('catalogNote');
- const grid=document.getElementById('filmGrid');
- note.textContent='Buscando películas para reproducir dentro de CinePlus…';
- grid.replaceChildren();
+ const grid=document.getElementById('allContentGrid')||document.getElementById('filmGrid');
+ note.textContent='Cargando películas con licencia compatible para reproducir dentro de CinePlus…';
+ grid.querySelectorAll('[data-cp-source="catalog-film"]').forEach(card=>card.remove());
+ cpRenderLicensedStarterFilms(grid,q);
  try{
   const genreTerms={popular:'collection:feature_films',action:'(title:action OR description:action)',comedy:'(title:comedy OR description:comedy)',horror:'(title:horror OR description:horror)',romance:'(title:romance OR description:romance)',drama:'(title:drama OR description:drama)',scifi:'(title:science-fiction OR title:sci-fi OR description:science-fiction)',adventure:'(title:adventure OR description:adventure)',martial:'(title:martial OR title:karate OR title:kong-fu OR description:martial)',asian:'(title:asian OR title:chinese OR title:japanese OR title:korean OR description:asian)',animation:'(title:animation OR title:animated OR description:animation)',christian:'(title:christian OR title:gospel OR description:christian)',suspense:'(title:suspense OR title:thriller OR description:suspense OR description:thriller)',new:'*:*'};
   const term=q ? 'title:('+q.replace(/[()+"]/g,' ') +')' : (genreTerms[window.cpFilmMode]||'collection:feature_films');
@@ -96,10 +115,10 @@ async function searchFilms(){
   if(!res.ok) throw Error('El catálogo no respondió');
   const json=await res.json();
   const docs=(json.response?.docs||[]).filter(f=>cpHasRedistributionLicense(f));
-  if(!docs.length){note.textContent='No encontramos títulos con una licencia de redistribución comercial identificable para esta búsqueda. Prueba otro género; no se mostrarán archivos sin licencia verificable.';return}
-  note.textContent=docs.length+' títulos con licencia Creative Commons compatible o dominio público identificado. Verifica los términos de cada ficha antes de redistribuir.';
+  if(!docs.length){note.textContent='Catálogo inicial legal disponible abajo. No encontramos más títulos con licencia compatible verificada para esta búsqueda; no se muestran fuentes sin licencia.';return}
+  note.textContent='Catálogo legal: '+(grid.querySelectorAll('[data-cp-source="catalog-film"]').length+docs.length)+' títulos cargados. Se conserva la atribución y solo se aceptan licencias compatibles.';
   for(const film of docs){
-   const card=document.createElement('article');card.className='movie';
+   const card=document.createElement('article');card.className='movie';card.dataset.cpKind='movie';card.dataset.cpSource='catalog-film';
    const poster=document.createElement('div');poster.className='poster';
    poster.style.backgroundImage='linear-gradient(0deg,#080a12cc,transparent 75%),url("https://archive.org/services/img/'+encodeURIComponent(film.identifier)+'")';
    poster.style.backgroundSize='cover';poster.style.backgroundPosition='center';
@@ -128,7 +147,7 @@ async function searchFilms(){
    poster.onclick=()=>b.click();poster.style.cursor='pointer';
    card.append(poster,h,p,b);grid.append(card);
   }
- }catch(e){note.textContent='No se pudo conectar al catálogo. Revisa tu conexión e inténtalo otra vez.'}
+ }catch(e){note.textContent='Catálogo legal inicial disponible abajo. No se pudo consultar el catálogo ampliado; revisa tu conexión para cargar más títulos.'}
 }
 window.cpFilmMode='popular';window.cpChooseGenre=function(mode){window.cpFilmMode=mode;document.querySelectorAll('.genre-chip').forEach(function(b){b.classList.toggle('active',b.getAttribute('onclick')&&b.getAttribute('onclick').includes("'"+mode+"'"))});document.getElementById('filmSearch').value='';searchFilms();};
 document.getElementById('searchFilms').onclick=searchFilms;document.getElementById('filmSearch').addEventListener('keydown',e=>{if(e.key==='Enter')searchFilms()});searchFilms();document.getElementById('startVideo').onclick=async()=>{if(!await requireLogin())return;const v=document.getElementById('video');try{await v.play();document.getElementById('playerNote').textContent='Reproduciendo: '+document.getElementById('playingTitle').textContent+'.'}catch(e){document.getElementById('playerNote').textContent='No se pudo reproducir dentro de la página. Error del reproductor: '+(v.error?('código '+v.error.code):e.message)+'. Revisa tu conexión e inténtalo otra vez.'}};document.getElementById('video').addEventListener('error',()=>{const v=document.getElementById('video');document.getElementById('playerNote').textContent='El navegador no pudo cargar el video (código '+(v.error?v.error.code:'desconocido')+'). Intenta reproducirlo de nuevo más tarde.';});document.getElementById('closePlayer').onclick=()=>{const v=document.getElementById('video');v.pause();v.removeAttribute('src');v.load();document.getElementById('playerbox').style.display='none'};let liveHls=null;document.getElementById('demoLive').onclick=()=>{document.getElementById('liveUrl').value='https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8';document.getElementById('loadLive').click()};document.getElementById('loadLive').onclick=async()=>{if(!await requireLogin())return;const url=document.getElementById('liveUrl').value.trim(),note=document.getElementById('liveNote');if(!url.startsWith('https://')){note.textContent='Introduce una URL HTTPS oficial autorizada.';return}const box=document.getElementById('playerbox'),v=document.getElementById('video'),source=document.getElementById('videoSource');if(liveHls){liveHls.destroy();liveHls=null}v.pause();v.removeAttribute('src');source.removeAttribute('src');v.load();document.getElementById('playingTitle').textContent='TV en vivo';box.style.display='block';if(/\.m3u8($|[?#])/i.test(url)){if(v.canPlayType('application/vnd.apple.mpegurl')){v.src=url;note.textContent='Señal HLS cargada. Pulsa Iniciar video.'}else if(window.Hls&&Hls.isSupported()){liveHls=new Hls({enableWorker:true,lowLatencyMode:true});liveHls.loadSource(url);liveHls.attachMedia(v);liveHls.on(Hls.Events.MANIFEST_PARSED,()=>{note.textContent='Canal HLS listo. Pulsa Iniciar video.'});liveHls.on(Hls.Events.ERROR,(_event,data)=>{if(data.fatal)note.textContent='No se pudo reproducir esta señal. Puede estar caída, bloquear reproducción desde otra web (CORS) o no ser una URL HLS válida.'})}else{note.textContent='Este dispositivo no admite HLS en el reproductor actual.';return}}else{v.src=url;note.textContent='Fuente cargada. Pulsa Iniciar video; el servidor debe permitir reproducción web.'}box.scrollIntoView({behavior:'smooth',block:'start'});};const paymentStatus=document.getElementById('paymentStatus');
