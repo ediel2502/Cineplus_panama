@@ -709,71 +709,31 @@ cpRenderLiveChannels();
 #youtube-cinema{display:none!important}
 </style>
 <script>
+/* Mantener películas, TV en vivo y zona 18+ en secciones independientes. */
 (function(){
- const target=document.getElementById('allContentGrid'),note=document.getElementById('allContentNote');
- if(!target)return;
- let mode='all';const seen=new WeakSet();
- function kindFor(card,source){
-   if(source==='adult'||card.closest('#adultVideosGrid'))return 'adult';
-   if(source==='live'||card.closest('#legalChannelGrid'))return 'live';
-   const t=(card.innerText||'').toLowerCase();
-   if(/18\+|adult|xxx/.test(t))return 'adult';
-   if(/canal|tv en vivo|sertv|tvn|tvmax|telemetro|rpc tv/.test(t))return 'live';
-   return 'movie';
- }
- function moveCards(grid,source){
-   if(!grid)return;
-   Array.from(grid.children).forEach(card=>{
-     if(card.tagName!=='ARTICLE'&&!card.classList.contains('movie'))return;
-     if(seen.has(card))return;
-     seen.add(card);card.dataset.cpKind=kindFor(card,source);target.append(card);
-   });
-   applyFilter();
- }
- function applyFilter(){
-   let visible=0;
-   Array.from(target.children).forEach(card=>{const show=mode==='all'||card.dataset.cpKind===mode;card.style.display=show?'':'none';if(show)visible++});
-   note.textContent=visible?visible+' elementos disponibles en esta vista.':'No hay contenido cargado en esta categoría todavía. Solo se deben cargar películas y señales autorizadas.';
- }
- [['filmGrid','movie'],['m3uGrid','playlist'],['adultVideosGrid','adult'],['legalChannelGrid','live']].forEach(([id,source])=>{
-   const el=document.getElementById(id);if(!el)return;
-   moveCards(el,source);
-   new MutationObserver(()=>moveCards(el,source)).observe(el,{childList:true});
- });
- document.querySelectorAll('#allFilters [data-kind]').forEach(btn=>btn.addEventListener('click',()=>{
-   mode=btn.dataset.kind;document.querySelectorAll('#allFilters [data-kind]').forEach(b=>b.classList.toggle('active',b===btn));applyFilter();
-   if(mode==='adult'&&!(typeof cpAdultVerified!=='undefined'&&cpAdultVerified))note.textContent='Zona 18+ bloqueada: confirma primero que tienes 18 años o más en Zona 18+.';
- }));
- const ageButton=document.getElementById('ageCheck');
- if(ageButton)ageButton.addEventListener('click',()=>setTimeout(()=>{moveCards(document.getElementById('adultVideosGrid'),'adult');applyFilter()},300));
+ const mixed=document.getElementById('cineplusAll');
+ if(mixed)mixed.remove();
  document.querySelectorAll('a[href*="youtube-catalogo.html"],#youtube-cinema').forEach(el=>el.remove());
  document.querySelectorAll('#legalSources a').forEach(a=>{a.removeAttribute('target');a.style.display='none'});
- applyFilter();
 })();
 </script>
 <script>
+/* Los canales se quedan dentro de la sección TV en vivo, no en un catálogo mezclado. */
 (function(){
- const grid=document.getElementById('legalChannelGrid'),target=document.getElementById('allContentGrid');
- if(!grid||!target)return;
- function addOfficialChannelCards(){
-   Array.from(grid.querySelectorAll('button.legal-channel')).forEach(btn=>{
-     if(btn.dataset.cpWrapped==='1')return;
-     const text=(btn.innerText||'').toLowerCase();
-     if(!text.includes('reproducir integrado'))return;
-     btn.dataset.cpWrapped='1';
-     const card=document.createElement('article');card.className='movie';card.dataset.cpKind='live';
-     const poster=document.createElement('div');poster.className='poster';poster.textContent='📺';
-     const title=document.createElement('h3');title.textContent=(btn.querySelector('strong')?.innerText||'Canal en vivo').replace(/^▶\s*/,'');
-     const desc=document.createElement('p');desc.textContent='Señal oficial integrada cuando el emisor permite la reproducción.';
-     btn.className='primary';btn.textContent='▶ Ver aquí';btn.style.width='calc(100% - 24px)';
-     card.append(poster,title,desc,btn);target.append(card);
-   });
-   const modeButtons=document.querySelectorAll('#allFilters [data-kind]');
-   if(modeButtons.length){const active=document.querySelector('#allFilters [data-kind].active');if(active&&active.dataset.kind!=='all'){target.querySelectorAll('[data-cp-kind="live"]').forEach(card=>card.style.display=active.dataset.kind==='live'?'':'none')}}
- }
- addOfficialChannelCards();
- new MutationObserver(addOfficialChannelCards).observe(grid,{childList:true});
- document.querySelectorAll('#iptv-playlist,#tv-en-vivo,#adultos,#legalSources').forEach(section=>{section.style.display='none'});
+ const grid=document.getElementById('legalChannelGrid');
+ if(!grid)return;
+ grid.querySelectorAll('button.legal-channel').forEach(btn=>{
+   if(btn.dataset.cpWrapped==='1')return;
+   const text=(btn.innerText||'').toLowerCase();
+   if(!text.includes('reproducir integrado'))return;
+   btn.dataset.cpWrapped='1';
+   const card=document.createElement('article');card.className='movie';
+   const poster=document.createElement('div');poster.className='poster';poster.textContent='📺';
+   const title=document.createElement('h3');title.textContent=(btn.querySelector('strong')?.innerText||'Canal en vivo').replace(/^▶\s*/,'');
+   const desc=document.createElement('p');desc.textContent='Señal oficial; la reproducción depende del emisor.';
+   btn.className='primary';btn.textContent='▶ Ver aquí';btn.style.width='calc(100% - 24px)';
+   card.append(poster,title,desc,btn);grid.append(card);
+ });
 })();
 </script><script>
 (function(){
