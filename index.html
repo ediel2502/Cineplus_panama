@@ -759,7 +759,7 @@ cpRenderLiveChannels();
   note.textContent='Consultando las listas comunitarias de películas y series…';
   try{
    const results=await Promise.all(urls.map(async url=>{const res=await fetch(url,{cache:'no-store'});if(!res.ok)throw new Error('HTTP '+res.status+' al consultar la lista');return await res.text()}));
-   const merged=results.join('\\n');
+   const merged=results[0]+'\n'+results[1];
    if(!merged.includes('#EXTM3U')&&!merged.includes('#EXTINF'))throw new Error('La fuente no devolvió una lista M3U válida.');
    acceptM3u(merged);
    note.textContent='Catálogo comunitario cargado: '+playlistItems.length+' entradas encontradas. Los enlaces proceden de terceros y pueden fallar o estar sujetos a restricciones regionales. Fuente: OnlineM3U PublicDomainM3U.';
