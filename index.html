@@ -771,32 +771,42 @@ cpRenderLiveChannels();
 </script>
 
 <script>
+/* Combina listas públicas de TV con reproductor integrado; no presenta enlaces comunitarios como licencias verificadas. */
 (function(){
  const btn=document.getElementById('loadFreeTv');
  if(!btn)return;
- const playlistUrl='https://raw.githubusercontent.com/Free-TV/IPTV/master/playlist.m3u8';
+ const sources=[
+  {url:'https://raw.githubusercontent.com/Free-TV/IPTV/master/playlist.m3u8',label:'Free-TV · lista comunitaria gratuita'},
+  {url:'https://iptv-org.github.io/iptv/countries/pa.m3u',label:'IPTV-org · lista pública de Panamá'}
+ ];
  btn.addEventListener('click',async()=>{
   const note=document.getElementById('liveNote'),grid=document.getElementById('liveGrid');
-  btn.disabled=true;btn.textContent='Cargando canales…';note.textContent='Consultando la lista gratuita…';grid.replaceChildren();
+  btn.disabled=true;btn.textContent='Buscando señales…';note.textContent='Consultando dos catálogos públicos. Las listas públicas no garantizan por sí solas derechos de redistribución.';grid.replaceChildren();
   try{
-   const res=await fetch(playlistUrl,{cache:'no-store'});if(!res.ok)throw new Error('HTTP '+res.status);
-   const raw=await res.text();if(!raw.includes('#EXTM3U'))throw new Error('Lista M3U inválida.');
-   const channels=parseM3u(raw).filter(x=>x.url&&x.category!=='18+');
-   if(!channels.length)throw new Error('No se encontraron canales.');
+   const results=await Promise.allSettled(sources.map(async s=>{const r=await fetch(s.url,{cache:'no-store'});if(!r.ok)throw new Error('HTTP '+r.status+' '+s.label);const t=await r.text();if(!t.includes('#EXTM3U'))throw new Error('M3U inválida: '+s.label);return {source:s,items:parseM3u(t)}}));
+   const ok=results.filter(x=>x.status==='fulfilled').map(x=>x.value);
+   if(!ok.length)throw new Error('No se pudo consultar ninguna lista; puede ser CORS, conexión o caída de la fuente.');
+   const seen=new Set(),channels=[];
+   for(const result of ok)for(const item of result.items){
+    if(!item.url||item.category==='18+'||seen.has(item.url))continue;
+    seen.add(item.url);item.sourceLabel=result.source.label;channels.push(item);
+   }
+   if(!channels.length)throw new Error('Las fuentes respondieron, pero no se encontraron canales reproducibles.');
    const frag=document.createDocumentFragment();
    for(const item of channels){
     const card=document.createElement('article');card.className='movie';
     const poster=document.createElement('div');poster.className='poster';poster.textContent='📡';
     if(item.logo&&/^https?:\/\//i.test(item.logo)){const img=document.createElement('img');img.src=item.logo;img.alt='';img.loading='lazy';img.style='width:100%;height:100%;object-fit:contain';img.onerror=()=>img.remove();poster.replaceChildren(img)}
     const h=document.createElement('h3');h.textContent=item.title;
-    const p=document.createElement('p');p.textContent=item.group||'TV en vivo · gratuita';
-    const b=document.createElement('button');b.className='primary';b.textContent='Ver en CinePlus';b.onclick=()=>playTitle(item.title,item.url);
+    const p=document.createElement('p');p.textContent=(item.group||'TV en vivo')+' · '+item.sourceLabel;
+    const b=document.createElement('button');b.className='primary';b.textContent='▶ Ver dentro de CinePlus';b.onclick=()=>playTitle(item.title,item.url);
     card.append(poster,h,p,b);frag.append(card);
    }
    grid.append(frag);
-   note.textContent='Canales cargados: '+channels.length+'. Free-TV declara priorizar señales oficialmente gratuitas; disponibilidad y reproducción integrada dependen de cada emisor y región. Fuente: '+playlistUrl;
-  }catch(e){note.textContent='No se pudo cargar la lista: '+e.message+'. Puede ser conexión, CORS o disponibilidad de la fuente.'}
-  finally{btn.disabled=false;btn.textContent='Cargar canales gratuitos autorizados'}
+   const failed=sources.length-ok.length;
+   note.textContent='Señales listadas: '+channels.length+'. Se intentaron '+sources.length+' catálogos; '+ok.length+' respondieron'+(failed?'; '+failed+' falló':'')+'. Pulsa “Ver dentro de CinePlus” para usar el reproductor integrado. Algunos canales pueden fallar por CORS, geobloqueo, formatos incompatibles o porque el emisor no permite reproducción externa. Las listas públicas no certifican derechos de redistribución de cada canal.';
+  }catch(e){note.textContent='No se pudieron cargar las señales: '+e.message}
+  finally{btn.disabled=false;btn.textContent='Buscar canales públicos y gratuitos'}
  });
 })();
 </script>
